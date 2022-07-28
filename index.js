@@ -19,6 +19,22 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         await client.connect();
+        const userCollecton = client.db('Tasks').collection('user');
+
+        app.get('/user', async (req, res) => {
+
+            const query = {};
+            const carsor = userCollecton.find(query);
+            const user = await carsor.toArray();
+            res.send(user);
+        })
+
+        app.post('/user', async (req, res) => {
+            const newuser = req.body;
+            const result = await userCollecton.insertOne(newuser);
+
+            res.send(result);
+        });
         console.log("connected");
     } 
     finally {
