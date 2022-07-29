@@ -21,6 +21,7 @@ async function run() {
         await client.connect();
         // console.log('connected')
         const taskCollection = client.db("Tasks").collection("task");
+        const userCollecton = client.db('Tasks').collection('user');
         const userInfoCollection = client.db("Tasks").collection("userInfo");
 
         app.get("/alltasks", async (req, res) => {
@@ -46,8 +47,23 @@ async function run() {
             res.send(result);
         });
 
+        app.get('/user', async (req, res) => {
 
-    } finally {
+            const query = {};
+            const carsor = userCollecton.find(query);
+            const user = await carsor.toArray();
+            res.send(user);
+        })
+
+        app.post('/user', async (req, res) => {
+            const newuser = req.body;
+            const result = await userCollecton.insertOne(newuser);
+
+            res.send(result);
+        });
+        console.log("connected");
+    } 
+    finally {
     }
 }
 run().catch(console.dir);
