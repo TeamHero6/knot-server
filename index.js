@@ -18,8 +18,10 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
-        client.connect();
+        await client.connect();
+        // console.log('connected')
         const taskCollection = client.db("Tasks").collection("task");
+        const userInfoCollection = client.db("Tasks").collection("userInfo");
 
         app.get("/alltasks", async (req, res) => {
             const result = await taskCollection.find({}).toArray();
@@ -31,6 +33,20 @@ async function run() {
             const result = await taskCollection.insertOne(task);
             res.send(result);
         });
+
+        app.post("/inputData", async (req, res) => {
+            const user = req.body;
+            console.log(user)
+            const result = await userInfoCollection.insertOne(user);
+            res.send(result);
+        });
+
+        app.get("/inputData", async (req, res) => {
+            const result = await userInfoCollection.find({}).toArray();
+            res.send(result);
+        });
+
+
     } finally {
     }
 }
