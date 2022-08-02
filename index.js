@@ -21,12 +21,35 @@ async function run() {
         client.connect();
         const taskCollection = client.db("Tasks").collection("task");
         const userCollecton = client.db('Tasks').collection('user');
+        const hrCollecton = client.db('HrManagement').collection('performance');
+        const transferCollecton = client.db('HrManagement').collection('transfer');
+
+        app.get("/transfer", async (req, res) => {
+            const result = await transferCollecton.find({}).toArray();
+            res.send(result);
+        });
+
+        app.post("/transfer", async (req, res) => {
+            const task = req.body;
+            const result = await transferCollecton.insertOne(task);
+            res.send(result);
+        });
+        app.get("/performance", async (req, res) => {
+            const result = await hrCollecton.find({}).toArray();
+            res.send(result);
+        });
+
+        app.post("/performance", async (req, res) => {
+            const task = req.body;
+            const result = await hrCollecton.insertOne(task);
+            res.send(result);
+        });
 
         app.get("/alltasks", async (req, res) => {
             const result = await taskCollection.find({}).toArray();
             res.send(result);
         });
-
+       
         app.post("/addNewTask", async (req, res) => {
             const task = req.body;
             const result = await taskCollection.insertOne(task);
