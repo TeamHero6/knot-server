@@ -23,6 +23,18 @@ async function run() {
         const userCollecton = client.db('Tasks').collection('user');
         const hrCollecton = client.db('HrManagement').collection('performance');
         const transferCollecton = client.db('HrManagement').collection('transfer');
+        const payrollsCollecton = client.db('HrManagement').collection('payrolls');
+
+        app.get("/payrolls", async (req, res) => {
+            const result = await payrollsCollecton.find({}).toArray();
+            res.send(result);
+        });
+
+        app.post("/payrolls", async (req, res) => {
+            const task = req.body;
+            const result = await payrollsCollecton.insertOne(task);
+            res.send(result);
+        });
 
         app.get("/transfer", async (req, res) => {
             const result = await transferCollecton.find({}).toArray();
