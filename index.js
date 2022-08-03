@@ -158,6 +158,23 @@ async function run() {
             const result = await warningCollection.insertOne(newWarning);
             res.send(result);
         });
+
+        //checkUser | isCEO | isManager | isEmployee
+        app.post("/isRole", async (req, res) => {
+            const signInInfo = req.body;
+            const role = signInInfo.role;
+            const email = signInInfo.email;
+            if (role === "CEO") {
+                const isCEO = await companyCollection.findOne({ CEO: email });
+                res.send({ role: true });
+            } else role === "manager";
+            {
+                const isManager = await companyCollection.findOne({
+                    manager: email,
+                });
+                res.send({ role: true });
+            }
+        });
     } finally {
     }
 }
