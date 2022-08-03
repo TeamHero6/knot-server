@@ -45,6 +45,7 @@ async function run() {
         const meetingCollection = client.db("services").collection("meeting");
         const warningCollection = client.db("services").collection("warning");
         const awardCollection = client.db("services").collection("award");
+        const newsletterCollection= client.db('customerEmail').collection('newsletter')
 
         // All Get API
 
@@ -158,6 +159,14 @@ async function run() {
             const result = await warningCollection.insertOne(newWarning);
             res.send(result);
         });
+
+        // 
+        app.post("/newsletter", async (req, res) => {
+            const newNewsletter = req.body;
+            const result = await newsletterCollection.insertOne(newNewsletter);
+            res.send(result);
+        });
+
     } finally {
     }
 }
