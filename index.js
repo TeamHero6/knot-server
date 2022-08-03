@@ -48,6 +48,41 @@ async function run() {
         const meetingCollection = client.db("services").collection("meeting");
         const warningCollection = client.db("services").collection("warning");
         const awardCollection = client.db("services").collection("award");
+        const hrCollecton = client.db('HrManagement').collection('performance');
+        const transferCollecton = client.db('HrManagement').collection('transfer');
+        const payrollsCollecton = client.db('HrManagement').collection('payrolls');
+
+        app.get("/payrolls", async (req, res) => {
+            const result = await payrollsCollecton.find({}).toArray();
+            res.send(result);
+        });
+
+        app.post("/payrolls", async (req, res) => {
+            const task = req.body;
+            const result = await payrollsCollecton.insertOne(task);
+            res.send(result);
+        });
+
+        app.get("/transfer", async (req, res) => {
+            const result = await transferCollecton.find({}).toArray();
+            res.send(result);
+        });
+
+        app.post("/transfer", async (req, res) => {
+            const task = req.body;
+            const result = await transferCollecton.insertOne(task);
+            res.send(result);
+        });
+        app.get("/performance", async (req, res) => {
+            const result = await hrCollecton.find({}).toArray();
+            res.send(result);
+        });
+
+        app.post("/performance", async (req, res) => {
+            const task = req.body;
+            const result = await hrCollecton.insertOne(task);
+            res.send(result);
+        });
 
         // All Get API
 
@@ -137,6 +172,7 @@ async function run() {
         });
 
         // All Post API
+       
         app.post("/addNewTask", async (req, res) => {
             const task = req.body;
             const result = await taskCollection.insertOne(task);
