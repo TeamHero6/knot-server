@@ -43,6 +43,8 @@ async function run() {
             .db("AuthenticationInfo")
             .collection("company");
         const meetingCollection = client.db("services").collection("meeting");
+        const warningCollection = client.db("services").collection("warning");
+        const awardCollection = client.db("services").collection("award");
 
         // All Get API
 
@@ -57,10 +59,20 @@ async function run() {
 
         app.get("/meetings", async (req, res) => {
             const result = await meetingCollection.find({}).toArray();
-            console.log(result);
             res.send(result);
         });
 
+        //Get all Warnings
+        app.get("/warnings", async (req, res) => {
+            const result = await warningCollection.find({}).toArray();
+            res.send(result);
+        });
+
+        //Get all award
+        app.get("/award", async (req, res) => {
+            const result = await awardCollection.find({}).toArray();
+            res.send(result);
+        });
         //Created user | Saved Data to Database | working two collection (user, company)
         app.put("/createdUser", async (req, res) => {
             let CEO = "";
@@ -127,9 +139,23 @@ async function run() {
             const result = await taskCollection.insertOne(task);
             res.send(result);
         });
+        //post new meeting
         app.post("/createNewMeeting", async (req, res) => {
             const newMeeting = req.body;
             const result = await meetingCollection.insertOne(newMeeting);
+            res.send(result);
+        });
+        //post award info to DB
+        app.post("/createAward", async (req, res) => {
+            const newAward = req.body;
+            const result = await awardCollection.insertOne(newAward);
+            res.send(result);
+        });
+
+        //CreateWarning | Save to DB
+        app.post("/createWarning", async (req, res) => {
+            const newWarning = req.body;
+            const result = await warningCollection.insertOne(newWarning);
             res.send(result);
         });
     } finally {
