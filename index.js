@@ -73,6 +73,8 @@ async function run() {
         const taskCollection = client.db("Tasks").collection("task");
         const userCollecton = client.db("Tasks").collection("user");
         const sentEmailCollection = client.db("Tasks").collection("sentEmail");
+        await client.connect();
+        const userInfoCollection = client.db("Tasks").collection("userInfo");
         const userCollection = client
             .db("AuthenticationInfo")
             .collection("user");
@@ -174,9 +176,33 @@ async function run() {
         });
 
         // All Post API
+
         app.post("/addNewTask", async (req, res) => {
             const task = req.body;
             const result = await taskCollection.insertOne(task);
+            res.send(result);
+        });
+
+        app.post("/inputData", async (req, res) => {
+            const user = req.body;
+            const result = await userInfoCollection.insertOne(user);
+            res.send(result);
+        });
+
+        app.get("/inputData", async (req, res) => {
+            const result = await userInfoCollection.find({}).toArray();
+            res.send(result);
+        });
+
+        app.get("/leaveData", async (req, res) => {
+            const result = await userCollecton.find({}).toArray();
+            res.send(result);
+        });
+
+        app.get("/leaveData/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await userCollecton.findOne(query);
             res.send(result);
         });
 
@@ -216,6 +242,8 @@ async function run() {
             const result = await sentEmailCollection.deleteOne(query);
             res.send(result);
         });
+        console.log("connected");
+
         //post new meeting
         app.post("/createNewMeeting", async (req, res) => {
             const newMeeting = req.body;
