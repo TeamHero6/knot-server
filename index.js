@@ -233,6 +233,24 @@ async function run() {
             res.send(result);
         });
 
+<<<<<<< HEAD
+        //checkUser | isCEO | isManager | isEmployee
+        app.post("/isRole", async (req, res) => {
+            const signInInfo = req.body;
+            const role = signInInfo.role;
+            const email = signInInfo.email;
+            if (role === "CEO") {
+                const isCEO = await companyCollection.findOne({ CEO: email });
+                res.send({ role: true });
+            } else role === "manager";
+            {
+                const isManager = await companyCollection.findOne({
+                    manager: email,
+                });
+                res.send({ role: true });
+            }
+        });
+=======
         // post newsletter data
         app.post("/newsletter", async (req, res) => {
             const newNewsletter = req.body;
@@ -240,6 +258,7 @@ async function run() {
             res.send(result);
         });
 
+>>>>>>> 070237f65cdd246e8aedf69bee7f53185276c7b7
     } finally {
     }
 }
