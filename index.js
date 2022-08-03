@@ -27,17 +27,12 @@ const auth = {
 
 const nodemailerMailgun = nodemailer.createTransport(mg(auth));
 
-// {
-//     emailTo: 'hero6.dev@gmail.com',
-//     emailSubject: 'This is a test email.',
-//     emailDescription: 'Thank you.'
-//   }
 const sendMarketingEmail = (newSentEmail) => {
     const { emailTo, emailSubject, emailDescription } = newSentEmail;
 
     nodemailerMailgun.sendMail({
         from: 'hero6.dev@gmail.com',
-        to: 'abdullahalhabib100@gmail.com', // An array if you have multiple recipients.
+        to: emailTo, // An array if you have multiple recipients.
         subject: emailSubject,
         'replyTo': 'reply2this@company.com',
         //You can use "html:" to send HTML email content. It's magic!
