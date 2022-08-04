@@ -21,41 +21,41 @@ async function run() {
         client.connect();
         const taskCollection = client.db("Tasks").collection("task");
         const userCollecton = client.db('Tasks').collection('user');
-        const hrCollectons = client.db('HrManagement').collection('performance');
-        const transferCollectons = client.db('HrManagement').collection('transfer');
-        const payrollsCollectons = client.db('HrManagement').collection('payrolls');
+        const hrCollecton = client.db('HrManagement').collection('performance');
+        const transferCollecton = client.db('HrManagement').collection('transfer');
+        const payrollsCollecton = client.db('HrManagement').collection('payrolls');
 
         app.get("/payrolls", async (req, res) => {
-            const result = await payrollsCollectons.find({}).toArray();
+            const result = await payrollsCollecton.find({}).toArray();
             res.send(result);
         });
         //payrolls
         app.post("/payrolls", async (req, res) => {
             const task = req.body;
-            const result = await payrollsCollectons.insertOne(task);
+            const result = await payrollsCollecton.insertOne(task);
             res.send(result);
         });
         //transfar
 
         app.get("/transfer", async (req, res) => {
-            const result = await transferCollectons.find({}).toArray();
+            const result = await transferCollecton.find({}).toArray();
             res.send(result);
         });
 
         app.post("/transfer", async (req, res) => {
             const task = req.body;
-            const result = await transferCollectons.insertOne(task);
+            const result = await transferCollecton.insertOne(task);
             res.send(result);
         });
         //performance
         app.get("/performance", async (req, res) => {
-            const result = await hrCollectons.find({}).toArray();
+            const result = await hrCollecton.find({}).toArray();
             res.send(result);
         });
 
         app.post("/performance", async (req, res) => {
             const task = req.body;
-            const result = await hrCollectons.insertOne(task);
+            const result = await hrCollecton.insertOne(task);
             res.send(result);
         });
 
