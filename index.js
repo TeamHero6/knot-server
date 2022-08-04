@@ -103,6 +103,7 @@ async function run() {
             const result = await meetingCollection.find({}).toArray();
             res.send(result);
         });
+        //transfar
 
         //Get all Warnings
         app.get("/warnings", async (req, res) => {
