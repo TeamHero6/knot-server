@@ -35,6 +35,7 @@ async function run() {
             const result = await payrollsCollecton.insertOne(task);
             res.send(result);
         });
+        //transfar
 
         app.get("/transfer", async (req, res) => {
             const result = await transferCollecton.find({}).toArray();
