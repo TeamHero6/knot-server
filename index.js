@@ -38,7 +38,7 @@ const auth = {
     auth: {
         api_key: process.env.MAILGUN_API_KEY,
         domain: process.env.MAILGUN_DOMAIN,
-    }
+    },
 };
 
 const nodemailerMailgun = nodemailer.createTransport(mg(auth));
@@ -91,10 +91,10 @@ async function run() {
         // All Get API
 
         // Checking Authentication
-        app.get("/isLogin", verifyJWT, async (req, res) => {
+        app.get("/isLogin", async (req, res) => {
             res.send({ login: true });
         });
-        app.get("/alltasks", verifyJWT, async (req, res) => {
+        app.get("/alltasks", async (req, res) => {
             const result = await taskCollection.find({}).toArray();
             res.send(result);
         });
