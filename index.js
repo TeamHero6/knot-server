@@ -102,7 +102,7 @@ async function run() {
         app.post("/payrolls", async (req, res) => {
             const task = req.body;
             const result = await payrollsCollecton.insertOne(task);
-
+        })
         app.get("/meetings", async (req, res) => {
             const result = await meetingCollection.find({}).toArray();
             res.send(result);
@@ -125,7 +125,7 @@ async function run() {
         app.get("/performance", async (req, res) => {
             const result = await hrCollecton.find({}).toArray();
             res.send(result);
-
+        })
         //Created user | Saved Data to Database | working two collection (user, company)
         app.put("/createdUser", async (req, res) => {
             let CEO = "";
