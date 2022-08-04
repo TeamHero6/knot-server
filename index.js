@@ -284,14 +284,20 @@ async function run() {
             const email = signInInfo.email;
             if (role === "CEO") {
                 const isCEO = await companyCollection.findOne({ CEO: email });
-                res.send({ role: true });
-            } else if (role === "manager") {
+                if (isCEO) {
+                    res.send({ role: true });
+                } else {
+                    res.send({ role: false });
+                }
+            } else if (role === "Manager") {
                 const isManager = await companyCollection.findOne({
                     manager: email,
                 });
-                res.send({ role: true });
-            } else {
-                res.send({ role: false });
+                if (isManager) {
+                    res.send({ role: true });
+                } else {
+                    res.send({ role: false });
+                }
             }
         });
         // post newsletter data
