@@ -36,9 +36,9 @@ function verifyJWT(req, res, next) {
 
 const auth = {
     auth: {
-        api_key: "d2bc1326695d1aa48b014ad9a91f521b-1b3a03f6-82b60d1d",
-        domain: "sandbox35a20f09427a447187ba6af804b66857.mailgun.org",
-    },
+        api_key: process.env.MAILGUN_API_KEY,
+        domain: process.env.MAILGUN_DOMAIN,
+    }
 };
 
 const nodemailerMailgun = nodemailer.createTransport(mg(auth));
