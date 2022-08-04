@@ -69,11 +69,14 @@ const sendMarketingEmail = (newSentEmail) => {
 
 async function run() {
     try {
-        client.connect();
+        await client.connect();
         const taskCollection = client.db("Tasks").collection("task");
         const userCollecton = client.db("Tasks").collection("user");
         const sentEmailCollection = client.db("Tasks").collection("sentEmail");
-        await client.connect();
+        const hrCollecton = client.db("HrManagement").collection("performance");
+        const payrollsCollecton = client
+            .db("HrManagement")
+            .collection("payrolls");
         const userInfoCollection = client.db("Tasks").collection("userInfo");
         const userCollection = client
             .db("AuthenticationInfo")
@@ -102,6 +105,7 @@ async function run() {
         app.post("/payrolls", async (req, res) => {
             const task = req.body;
             const result = await payrollsCollecton.insertOne(task);
+            res.send(result);
         });
 
         app.get("/meetings", async (req, res) => {
