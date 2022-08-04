@@ -123,55 +123,69 @@ async function run() {
             const options = { upsert: true };
 
             const userInfo = req.body;
-            if (userInfo.role == "Manager") {
-                manager = userInfo.email;
-            } else {
-                CEO = userInfo.email;
-            }
-            const company = {
-                companyName: userInfo.companyName,
-                companyLogo: userInfo.companyLogo,
-                CEO,
-                manager,
-                employees,
-                hr: "",
-                marketingManager: "",
-                salesManager: "",
-                financeManager: "",
-            };
-            const filter = {
-                email: userInfo.email,
-                companyName: userInfo.companyName,
-            };
-            const companyFilter = { companyName: userInfo.companyName };
-            const updateDoc = {
-                $set: company,
-            };
-            //send Data to Two Collection
-            const companyResult = await companyCollection.updateOne(
-                filter,
-                updateDoc,
-                options
-            );
 
-            const userResult = await userCollection.updateOne(
-                companyFilter,
-                updateDoc,
-                options
-            );
-            if (companyResult.acknowledged && userResult.acknowledged) {
-                const authenticationInfo = {
-                    email: userInfo.email,
-                    role: userInfo.role,
+            //Check validity
+            const email = userInfo?.email;
+            const companyName = userInfo?.companyName;
+            const validityFilter = { companyName, email };
+            const valid = await companyCollection.findOne(validityFilter);
+            if (valid) {
+                res.send({
+                    message:
+                        "Already have an account! Please contact us or try with another account",
+                    token: "",
+                });
+            } else {
+                if (userInfo.role == "Manager") {
+                    manager = userInfo.email;
+                } else {
+                    CEO = userInfo.email;
+                }
+                const company = {
+                    companyName: userInfo.companyName,
+                    companyLogo: userInfo.companyLogo,
+                    CEO,
+                    manager,
+                    employees,
+                    hr: "",
+                    marketingManager: "",
+                    salesManager: "",
+                    financeManager: "",
                 };
-                const token = jwt.sign(
-                    authenticationInfo,
-                    process.env.JWT_PRIVATE_KEY,
-                    {
-                        expiresIn: "1d",
-                    }
+                const filter = {
+                    email: userInfo.email,
+                    companyName: userInfo.companyName,
+                };
+                const companyFilter = { companyName: userInfo.companyName };
+                const updateDoc = {
+                    $set: company,
+                };
+                //send Data to Two Collection
+                const companyResult = await companyCollection.updateOne(
+                    filter,
+                    updateDoc,
+                    options
                 );
-                res.send({ token });
+
+                const userResult = await userCollection.updateOne(
+                    companyFilter,
+                    updateDoc,
+                    options
+                );
+                if (companyResult.acknowledged && userResult.acknowledged) {
+                    const authenticationInfo = {
+                        email: userInfo.email,
+                        role: userInfo.role,
+                    };
+                    const token = jwt.sign(
+                        authenticationInfo,
+                        process.env.JWT_PRIVATE_KEY,
+                        {
+                            expiresIn: "1d",
+                        }
+                    );
+                    res.send({ token });
+                }
             }
         });
 
@@ -242,7 +256,6 @@ async function run() {
             const result = await sentEmailCollection.deleteOne(query);
             res.send(result);
         });
-        console.log("connected");
 
         //post new meeting
         app.post("/createNewMeeting", async (req, res) => {
@@ -272,12 +285,13 @@ async function run() {
             if (role === "CEO") {
                 const isCEO = await companyCollection.findOne({ CEO: email });
                 res.send({ role: true });
-            } else role === "manager";
-            {
+            } else if (role === "manager") {
                 const isManager = await companyCollection.findOne({
                     manager: email,
                 });
                 res.send({ role: true });
+            } else {
+                res.send({ role: false });
             }
         });
         // post newsletter data
