@@ -19,9 +19,71 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         client.connect();
-        //kont Database
+        const taskCollection = client.db("Tasks").collection("task");
+        const userCollecton = client.db('Tasks').collection('user');
+        const hrCollectons = client.db('HrManagement').collection('performance');
+        const transferCollectons = client.db('HrManagement').collection('transfer');
+        const payrollsCollectons = client.db('HrManagement').collection('payrolls');
 
+        app.get("/payrolls", async (req, res) => {
+            const result = await payrollsCollectons.find({}).toArray();
+            res.send(result);
+        });
+        //payrolls
+        app.post("/payrolls", async (req, res) => {
+            const task = req.body;
+            const result = await payrollsCollectons.insertOne(task);
+            res.send(result);
+        });
+        //transfar
+
+        app.get("/transfer", async (req, res) => {
+            const result = await transferCollectons.find({}).toArray();
+            res.send(result);
+        });
+
+        app.post("/transfer", async (req, res) => {
+            const task = req.body;
+            const result = await transferCollectons.insertOne(task);
+            res.send(result);
+        });
+        //performance
+        app.get("/performance", async (req, res) => {
+            const result = await hrCollectons.find({}).toArray();
+            res.send(result);
+        });
+
+        app.post("/performance", async (req, res) => {
+            const task = req.body;
+            const result = await hrCollectons.insertOne(task);
+            res.send(result);
+        });
+
+        app.get("/alltasks", async (req, res) => {
+            const result = await taskCollection.find({}).toArray();
+            res.send(result);
+        });
        
+        app.post("/addNewTask", async (req, res) => {
+            const task = req.body;
+            const result = await taskCollection.insertOne(task);
+            res.send(result);
+        });
+
+        app.get('/user', async (req, res) => {
+
+            const query = {};
+            const carsor = userCollecton.find(query);
+            const user = await carsor.toArray();
+            res.send(user);
+        })
+
+        app.post('/user', async (req, res) => {
+            const newuser = req.body;
+            const result = await userCollecton.insertOne(newuser);
+
+            res.send(result);
+        });
         console.log("connected");
     }
     finally {
