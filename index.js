@@ -29,7 +29,7 @@ async function run() {
             const result = await payrollsCollecton.find({}).toArray();
             res.send(result);
         });
-
+        //payrolls
         app.post("/payrolls", async (req, res) => {
             const task = req.body;
             const result = await payrollsCollecton.insertOne(task);
