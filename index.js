@@ -110,6 +110,10 @@ async function run() {
             const result = await payrollsCollecton.insertOne(task);
             res.send(result);
         });
+        app.get("/payrolls", async (req, res) => {
+            const result = await payrollsCollecton.find({}).toArray();
+            res.send(result);
+        });
 
         app.get("/meetings", async (req, res) => {
             const result = await meetingCollection.find({}).toArray();
