@@ -74,6 +74,9 @@ async function run() {
         const userCollecton = client.db("Tasks").collection("user");
         const sentEmailCollection = client.db("Tasks").collection("sentEmail");
         const hrCollecton = client.db("HrManagement").collection("performance");
+        const transferCollecton = client
+            .db("HrManagement")
+            .collection("transfer");
         const payrollsCollecton = client
             .db("HrManagement")
             .collection("payrolls");
@@ -130,6 +133,21 @@ async function run() {
         app.get("/performance", async (req, res) => {
             const result = await hrCollecton.find({}).toArray();
             res.send(result);
+        });
+        app.get("/transfer", async (req, res) => {
+            const result = await transferCollecton.find({}).toArray();
+            res.send(result);
+        });
+
+        app.post("/performance", async (req, res) => {
+            const perform = req.body;
+            const request = await hrCollecton.insertOne(perform);
+            res.send(request);
+        });
+        app.post("/transfer", async (req, res) => {
+            const perform = req.body;
+            const request = await transferCollecton.insertOne(perform);
+            res.send(request);
         });
 
         //Created user | Saved Data to Database | working two collection (user, company)
