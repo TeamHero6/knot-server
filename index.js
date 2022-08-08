@@ -36,8 +36,8 @@ function verifyJWT(req, res, next) {
 
 const auth = {
     auth: {
-        api_key: "d2bc1326695d1aa48b014ad9a91f521b-1b3a03f6-82b60d1d",
-        domain: "sandbox35a20f09427a447187ba6af804b66857.mailgun.org",
+        api_key: process.env.MAILGUN_API_KEY,
+        domain: process.env.MAILGUN_DOMAIN,
     },
 };
 
@@ -69,11 +69,17 @@ const sendMarketingEmail = (newSentEmail) => {
 
 async function run() {
     try {
-        client.connect();
+        await client.connect();
         const taskCollection = client.db("Tasks").collection("task");
         const userCollecton = client.db("Tasks").collection("user");
         const sentEmailCollection = client.db("Tasks").collection("sentEmail");
-        await client.connect();
+        const hrCollecton = client.db("HrManagement").collection("performance");
+        const transferCollecton = client
+            .db("HrManagement")
+            .collection("transfer");
+        const payrollsCollecton = client
+            .db("HrManagement")
+            .collection("payrolls");
         const userInfoCollection = client.db("Tasks").collection("userInfo");
         const userCollection = client
             .db("AuthenticationInfo")
@@ -91,10 +97,10 @@ async function run() {
         // All Get API
 
         // Checking Authentication
-        app.get("/isLogin", verifyJWT, async (req, res) => {
+        app.get("/isLogin", async (req, res) => {
             res.send({ login: true });
         });
-        app.get("/alltasks", verifyJWT, async (req, res) => {
+        app.get("/alltasks", async (req, res) => {
             const result = await taskCollection.find({}).toArray();
             res.send(result);
         });
@@ -102,6 +108,11 @@ async function run() {
         app.post("/payrolls", async (req, res) => {
             const task = req.body;
             const result = await payrollsCollecton.insertOne(task);
+            res.send(result);
+        });
+        app.get("/payrolls", async (req, res) => {
+            const result = await payrollsCollecton.find({}).toArray();
+            res.send(result);
         });
 
         app.get("/meetings", async (req, res) => {
@@ -126,6 +137,21 @@ async function run() {
         app.get("/performance", async (req, res) => {
             const result = await hrCollecton.find({}).toArray();
             res.send(result);
+        });
+        app.get("/transfer", async (req, res) => {
+            const result = await transferCollecton.find({}).toArray();
+            res.send(result);
+        });
+
+        app.post("/performance", async (req, res) => {
+            const perform = req.body;
+            const request = await hrCollecton.insertOne(perform);
+            res.send(request);
+        });
+        app.post("/transfer", async (req, res) => {
+            const perform = req.body;
+            const request = await transferCollecton.insertOne(perform);
+            res.send(request);
         });
 
         //Created user | Saved Data to Database | working two collection (user, company)
@@ -156,7 +182,7 @@ async function run() {
                 }
                 const company = {
                     companyName: userInfo.companyName,
-                    CompanyLogo: userInfo.CompanyLogo,
+                    companyLogo: userInfo.CompanyLogo,
                     CEO,
                     manager,
                     employees,
@@ -167,25 +193,26 @@ async function run() {
                 };
                 const userList = {
                     email: userInfo.email,
-                    companyName: userInfo.companyName,
-                    CEO,
-                    manager,
-                    userPhoto: userInfo.userPhoto,
-                    companyLogo: userInfo.CompanyLogo,
+                    name: userInfo.name,
+                    password: userInfo.password,
                     role: userInfo.role,
-                    password: "",
-                    salary: "",
+                    companyLogo: userInfo.CompanyLogo,
+                    userPhoto: userInfo.userPhoto,
+                    companyName: userInfo.companyName,
                 };
+                console.log(userInfo);
+
                 const filter = {
                     email: userInfo.email,
                     companyName: userInfo.companyName,
                 };
-                const updateUserDoc = {
-                    $set: userList,
-                };
                 const companyFilter = { companyName: userInfo.companyName };
                 const updateDoc = {
                     $set: company,
+                };
+
+                const userUpdateDoc = {
+                    $set: userList,
                 };
                 //send Data to Two Collection
                 const companyResult = await companyCollection.updateOne(
@@ -196,7 +223,7 @@ async function run() {
 
                 const userResult = await userCollection.updateOne(
                     companyFilter,
-                    updateUserDoc,
+                    userUpdateDoc,
                     options
                 );
                 if (companyResult.acknowledged && userResult.acknowledged) {
