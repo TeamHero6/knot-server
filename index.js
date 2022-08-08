@@ -182,7 +182,7 @@ async function run() {
                 }
                 const company = {
                     companyName: userInfo.companyName,
-                    CompanyLogo: userInfo.CompanyLogo,
+                    companyLogo: userInfo.CompanyLogo,
                     CEO,
                     manager,
                     employees,
@@ -193,25 +193,25 @@ async function run() {
                 };
                 const userList = {
                     email: userInfo.email,
-                    companyName: userInfo.companyName,
-                    CEO,
-                    manager,
-                    userPhoto: userInfo.userPhoto,
-                    companyLogo: userInfo.CompanyLogo,
+                    name: userInfo.name,
+                    password: userInfo.password,
                     role: userInfo.role,
-                    password: "",
-                    salary: "",
+                    companyLogo: userInfo.CompanyLogo,
+                    userPhoto: userInfo.userPhoto,
+                    companyName: userInfo.companyName,
                 };
+
                 const filter = {
                     email: userInfo.email,
                     companyName: userInfo.companyName,
                 };
-                const updateUserDoc = {
-                    $set: userList,
-                };
                 const companyFilter = { companyName: userInfo.companyName };
                 const updateDoc = {
                     $set: company,
+                };
+
+                const userUpdateDoc = {
+                    $set: userList,
                 };
                 //send Data to Two Collection
                 const companyResult = await companyCollection.updateOne(
@@ -222,7 +222,7 @@ async function run() {
 
                 const userResult = await userCollection.updateOne(
                     companyFilter,
-                    updateUserDoc,
+                    userUpdateDoc,
                     options
                 );
                 if (companyResult.acknowledged && userResult.acknowledged) {
@@ -358,6 +358,30 @@ async function run() {
             const newNewsletter = req.body;
             const result = await newsletterCollection.insertOne(newNewsletter);
             res.send(result);
+        });
+
+        //ALL PUT API WILL GOES HERE
+        //ALL PUT API WILL GOES HERE
+
+        //createNewEmployee is for adding employee in userCollection and company collection in employees array
+        app.put("/createNewEmployee", async (req, res) => {
+            const employee = req.body;
+
+            //Create user || userCollection > user
+            const user = {
+                companyName: "",
+                companyLogo: "",
+                email: employee.email,
+                name: "",
+                password: employee.passcode,
+                role: "employee",
+                userPhoto: "",
+            };
+
+            const result = await userCollection.insertOne(user);
+
+            //Incomplete Task
+            //employee add to company database in arrow
         });
     } finally {
     }
