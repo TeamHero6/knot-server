@@ -200,7 +200,6 @@ async function run() {
                     userPhoto: userInfo.userPhoto,
                     companyName: userInfo.companyName,
                 };
-                console.log(userInfo);
 
                 const filter = {
                     email: userInfo.email,
@@ -359,6 +358,30 @@ async function run() {
             const newNewsletter = req.body;
             const result = await newsletterCollection.insertOne(newNewsletter);
             res.send(result);
+        });
+
+        //ALL PUT API WILL GOES HERE
+        //ALL PUT API WILL GOES HERE
+
+        //createNewEmployee is for adding employee in userCollection and company collection in employees array
+        app.put("/createNewEmployee", async (req, res) => {
+            const employee = req.body;
+
+            //Create user || userCollection > user
+            const user = {
+                companyName: "",
+                companyLogo: "",
+                email: employee.email,
+                name: "",
+                password: employee.passcode,
+                role: "employee",
+                userPhoto: "",
+            };
+
+            const result = await userCollection.insertOne(user);
+
+            //Incomplete Task
+            //employee add to company database in arrow
         });
     } finally {
     }
