@@ -182,7 +182,7 @@ async function run() {
                 }
                 const company = {
                     companyName: userInfo.companyName,
-                    companyLogo: userInfo.companyLogo,
+                    CompanyLogo: userInfo.CompanyLogo,
                     CEO,
                     manager,
                     employees,
@@ -191,9 +191,23 @@ async function run() {
                     salesManager: "",
                     financeManager: "",
                 };
+                const userList = {
+                    email: userInfo.email,
+                    companyName: userInfo.companyName,
+                    CEO,
+                    manager,
+                    userPhoto: userInfo.userPhoto,
+                    companyLogo: userInfo.CompanyLogo,
+                    role: userInfo.role,
+                    password: "",
+                    salary: "",
+                };
                 const filter = {
                     email: userInfo.email,
                     companyName: userInfo.companyName,
+                };
+                const updateUserDoc = {
+                    $set: userList,
                 };
                 const companyFilter = { companyName: userInfo.companyName };
                 const updateDoc = {
@@ -208,7 +222,7 @@ async function run() {
 
                 const userResult = await userCollection.updateOne(
                     companyFilter,
-                    updateDoc,
+                    updateUserDoc,
                     options
                 );
                 if (companyResult.acknowledged && userResult.acknowledged) {
