@@ -237,7 +237,7 @@ async function run() {
                             expiresIn: "1d",
                         }
                     );
-                    res.send({ token });
+                    res.send({ token, loggerInfo: userList });
                 }
             }
         });
@@ -335,10 +335,12 @@ async function run() {
             const signInInfo = req.body;
             const role = signInInfo.role;
             const email = signInInfo.email;
+            const loggerInfo = await userCollection.findOne({ email: email });
+
             if (role === "CEO") {
                 const isCEO = await companyCollection.findOne({ CEO: email });
                 if (isCEO) {
-                    res.send({ role: true });
+                    res.send({ role: true, loggerInfo });
                 } else {
                     res.send({ role: false });
                 }
@@ -347,7 +349,7 @@ async function run() {
                     manager: email,
                 });
                 if (isManager) {
-                    res.send({ role: true });
+                    res.send({ role: true, loggerInfo });
                 } else {
                     res.send({ role: false });
                 }
