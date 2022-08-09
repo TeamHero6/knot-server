@@ -226,12 +226,12 @@ async function run() {
                     options
                 );
                 if (companyResult.acknowledged && userResult.acknowledged) {
-                    const authenticationInfo = {
+                    const authInfo = {
                         email: userInfo.email,
                         role: userInfo.role,
                     };
                     const token = jwt.sign(
-                        authenticationInfo,
+                        authInfo,
                         process.env.JWT_PRIVATE_KEY,
                         {
                             expiresIn: "1d",
@@ -335,12 +335,20 @@ async function run() {
             const signInInfo = req.body;
             const role = signInInfo.role;
             const email = signInInfo.email;
+            const authInfo = { email, role };
+
+            //Create an access Token
+            const token = jwt.sign(authInfo, process.env.JWT_PRIVATE_KEY, {
+                expiresIn: "1d",
+            });
+
+            //Generate logger info
             const loggerInfo = await userCollection.findOne({ email: email });
 
             if (role === "CEO") {
                 const isCEO = await companyCollection.findOne({ CEO: email });
                 if (isCEO) {
-                    res.send({ role: true, loggerInfo });
+                    res.send({ role: true, loggerInfo, token });
                 } else {
                     res.send({ role: false });
                 }
@@ -349,7 +357,7 @@ async function run() {
                     manager: email,
                 });
                 if (isManager) {
-                    res.send({ role: true, loggerInfo });
+                    res.send({ role: true, loggerInfo, token });
                 } else {
                     res.send({ role: false });
                 }
