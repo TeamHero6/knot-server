@@ -242,19 +242,27 @@ async function run() {
             }
         });
 
-        //Check Employee Role
-        app.get("/employeeRole/:email", async (req, res) => {
-            const email = req.params.email;
+        //Check Employee
+        app.post("/checkEmployee", async (req, res) => {
+            const info = req.body;
+            const email = info?.email;
+            const secretCode = info?.secretCode;
+            console.log(email);
             const employee = await userCollection.findOne({ email });
-            //Check user is employee or not
-            if (employee?.role !== "employee") {
+
+            if (!employee) {
                 res.send({
-                    role: "",
-                    message: "You have no access to login.",
-                    message2: "Contact with your manager",
+                    role: false,
+                    message: "You havn't access for login",
                 });
-            } else if (employee?.role === "employee") {
-                res.send({ role: "employee", message: "" });
+            }
+            if (parseInt(secretCode) !== parseInt(employee?.secretCode)) {
+                res.send({
+                    role: false,
+                    message: "Secret Code doesn't matched",
+                });
+            } else if (parseInt(secretCode) === employee?.secretCode) {
+                res.send({ role: true, message: "Congratulation!" });
             }
         });
 
