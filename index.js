@@ -71,7 +71,7 @@ async function run() {
     try {
         await client.connect();
         const taskCollection = client.db("Tasks").collection("task");
-        const userCollecton = client.db("Tasks").collection("user");
+        // const userCollecton = client.db("Tasks").collection("user");
         const sentEmailCollection = client.db("Tasks").collection("sentEmail");
         const hrCollecton = client.db("HrManagement").collection("performance");
         const transferCollecton = client
@@ -242,6 +242,22 @@ async function run() {
             }
         });
 
+        //Check Employee Role
+        app.get("/employeeRole/:email", async (req, res) => {
+            const email = req.params.email;
+            const employee = await userCollection.findOne({ email });
+            //Check user is employee or not
+            if (employee?.role !== "employee") {
+                res.send({
+                    role: "",
+                    message: "You have no access to login.",
+                    message2: "Contact with your manager",
+                });
+            } else if (employee?.role === "employee") {
+                res.send({ role: "employee", message: "" });
+            }
+        });
+
         // All Post API
 
         app.post("/addNewTask", async (req, res) => {
@@ -383,7 +399,7 @@ async function run() {
                 companyLogo: "",
                 email: employee.email,
                 name: "",
-                password: employee.passcode,
+                secretCode: employee.passcode,
                 role: "employee",
                 userPhoto: "",
             };
