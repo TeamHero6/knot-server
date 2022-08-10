@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
-var cors = require("cors");
-var jwt = require("jsonwebtoken");
+const cors = require("cors");
+const jwt = require("jsonwebtoken");
 const port = process.env.PORT || 5000;
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
@@ -88,6 +88,8 @@ async function run() {
             .db("customerEmail")
             .collection("newsletter");
 
+        const productDetailsCollection = client.db("salesManagement").collection("product");
+
         // All Get API
 
         // Checking Authentication
@@ -125,6 +127,14 @@ async function run() {
         //performance
         app.get("/performance", async (req, res) => {
             const result = await hrCollecton.find({}).toArray();
+            res.send(result);
+        });
+
+        // Get newsletter data
+        app.get("/newsletterMail", async (req, res) => {
+            const query = {};
+            const cursor = newsletterCollection.find(query);
+            const result = await cursor.toArray();
             res.send(result);
         });
 
@@ -319,6 +329,20 @@ async function run() {
             const result = await newsletterCollection.insertOne(newNewsletter);
             res.send(result);
         });
+        // post products info on sales management db
+        app.post("/addProduct", async (req, res) => {
+            const newProduct = req.body;
+            const result = await productDetailsCollection.insertOne(newProduct);
+            res.send(result);
+        });
+        // get products info from sales management db
+        app.get("/addProduct", async (req, res) => {
+            const query = {};
+            const cursor = productDetailsCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
     } finally {
     }
 }
