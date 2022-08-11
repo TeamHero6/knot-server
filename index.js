@@ -4,6 +4,7 @@ var cors = require("cors");
 const port = process.env.PORT || 5000;
 require("dotenv").config();
 const { MongoClient, ServerApiVersion } = require("mongodb");
+const ObjectId = require('mongodb').ObjectId;
 
 //middleWare
 app.use(cors());
@@ -24,7 +25,138 @@ async function run() {
         const hrCollecton = client.db('HrManagement').collection('performance');
         const transferCollecton = client.db('HrManagement').collection('transfer');
         const payrollsCollecton = client.db('HrManagement').collection('payrolls');
+        const warningCollecton = client.db('services').collection('warning');
+        const awardCollecton = client.db('services').collection('award');
+        const vacancyCollecton = client.db('HrManagement').collection('vacancy');
+        const applicantCollecton = client.db('HrManagement').collection('applicant');
+        
+        app.put('/applicant/:id', async (req, res) => {
+            const id = req.params.id;
+            const upaprovel = req.body;
+            const filter = { _id: ObjectId(id) };
 
+            const options = { upsert: true };
+
+            const updateDoc = {
+                $set: {
+                    aprovel: upaprovel.aprovel,
+
+                }
+            };
+            const result = await userCollecton.updateOne(filter, updateDoc, options);
+            res.send(result);
+
+        })
+        app.get("/applicant", async (req, res) => {
+            const result = await applicantCollecton.find({}).toArray();
+            res.send(result);
+        });
+        app.delete("/applicant/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await applicantCollecton.deleteOne(query);
+            res.send(result);
+        });
+
+        app.post("/applicant", async (req, res) => {
+            const task = req.body;
+            const result = await applicantCollecton.insertOne(task);
+            res.send(result);
+        });
+        app.get("/vacancy", async (req, res) => {
+            const result = await vacancyCollecton.find({}).toArray();
+            res.send(result);
+        });
+        app.delete("/vacancy/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await vacancyCollecton.deleteOne(query);
+            res.send(result);
+        });
+
+        app.post("/vacancy", async (req, res) => {
+            const task = req.body;
+            const result = await vacancyCollecton.insertOne(task);
+            res.send(result);
+        });
+
+        app.put('/users/:id', async (req, res) => {
+            const id = req.params.id;
+            const upaprovel = req.body;
+            const filter = { _id: ObjectId(id) };
+
+            const options = { upsert: true };
+
+            const updateDoc = {
+                $set: {
+                    aprovel: upaprovel.aprovel,
+
+                }
+            };
+            const result = await userCollecton.updateOne(filter, updateDoc, options);
+            res.send(result);
+
+        })
+        app.put('/alltasks/:id', async (req, res) => {
+            const id = req.params.id;
+            const uptask = req.body;
+            const filter = { _id: ObjectId(id) };
+
+            const options = { upsert: true };
+
+            const updateDoc = {
+                $set: {
+                    intask: uptask.intask,
+
+                }
+            };
+            const result = await taskCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+
+        })
+        app.put('/warning/:id', async (req, res) => {
+            const id = req.params.id;
+            const upwarning = req.body;
+            const filter = { _id: ObjectId(id) };
+
+            const options = { upsert: true };
+
+            const updateDoc = {
+                $set: {
+                    infeed: upwarning.infeed,
+
+                }
+            };
+            const result = await warningCollecton.updateOne(filter, updateDoc, options);
+            res.send(result);
+
+        })
+        app.put('/award/:id', async (req, res) => {
+            const id = req.params.id;
+            const leaderup = req.body;
+            const filter = { _id: ObjectId(id) };
+
+            const options = { upsert: true };
+
+            const updateDoc = {
+                $set: {
+                    ledarfeed: leaderup.ledarfeed,
+
+                }
+            };
+            const result = await awardCollecton.updateOne(filter, updateDoc, options);
+            res.send(result);
+
+        })
+
+        app.get("/award", async (req, res) => {
+            const result = await awardCollecton.find({}).toArray();
+            res.send(result);
+        });
+        app.get("/warning", async (req, res) => {
+            const result = await warningCollecton.find({}).toArray();
+            res.send(result);
+        });
         app.get("/payrolls", async (req, res) => {
             const result = await payrollsCollecton.find({}).toArray();
             res.send(result);
@@ -61,14 +193,14 @@ async function run() {
             const result = await taskCollection.find({}).toArray();
             res.send(result);
         });
-       
+
         app.post("/addNewTask", async (req, res) => {
             const task = req.body;
             const result = await taskCollection.insertOne(task);
             res.send(result);
         });
 
-        app.get('/user', async (req, res) => {
+        app.get('/users', async (req, res) => {
 
             const query = {};
             const carsor = userCollecton.find(query);
@@ -76,7 +208,7 @@ async function run() {
             res.send(user);
         })
 
-        app.post('/user', async (req, res) => {
+        app.post('/users', async (req, res) => {
             const newuser = req.body;
             const result = await userCollecton.insertOne(newuser);
 
