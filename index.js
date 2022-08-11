@@ -88,6 +88,9 @@ async function run() {
             .db("customerEmail")
             .collection("newsletter");
 
+        const createNewUserCollection = client.db("chat").collection("userInfo");
+        const createUserLoginCollection = client.db("chat").collection("loginInfo");
+        const chatCollection = client.db("chat").collection("conversation");
         // All Get API
 
         // Checking Authentication
@@ -318,6 +321,39 @@ async function run() {
             const result = await newsletterCollection.insertOne(newNewsletter);
             res.send(result);
         });
+
+        // ...........
+
+
+        //Live Chat UserInfo Post API
+        app.post("/chatuser", async (req, res) => {
+            const newUserInfo = req.body;
+            const result = await createNewUserCollection.insertOne(newUserInfo);
+            res.send(result);
+        });
+        //Live Chat UserInfo Get API
+        app.get("/chatuser", async (req, res) => {
+            const result = await createNewUserCollection.find({}).toArray();
+            res.send(result);
+        });
+
+        //chat Post API
+        app.post("/hrchat", async (req, res) => {
+            const newChat = req.body;
+            const result = await chatCollection.insertOne(newChat);
+            res.send(result);
+        });
+
+
+
+        // //chat Get API
+        app.get("/hrchat", async (req, res) => {
+            const result = await chatCollection.find({}).toArray();
+            res.send(result);
+        });
+
+
+        //............... 
     } finally {
     }
 }
