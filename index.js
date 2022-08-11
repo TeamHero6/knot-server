@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
-var cors = require("cors");
-var jwt = require("jsonwebtoken");
+const cors = require("cors");
+const jwt = require("jsonwebtoken");
 const port = process.env.PORT || 5000;
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
@@ -36,9 +36,9 @@ function verifyJWT(req, res, next) {
 
 const auth = {
     auth: {
-        api_key: "d2bc1326695d1aa48b014ad9a91f521b-1b3a03f6-82b60d1d",
-        domain: "sandbox35a20f09427a447187ba6af804b66857.mailgun.org",
-    },
+        api_key: process.env.MAILGUN_API_KEY,
+        domain: process.env.MAILGUN_DOMAIN,
+    }
 };
 
 const nodemailerMailgun = nodemailer.createTransport(mg(auth));
@@ -91,6 +91,9 @@ async function run() {
         const createNewUserCollection = client.db("chat").collection("userInfo");
         const createUserLoginCollection = client.db("chat").collection("loginInfo");
         const chatCollection = client.db("chat").collection("conversation");
+        const productDetailsCollection = client.db("salesManagement").collection("product");
+        const customerCollection = client.db("salesManagement").collection("customer");
+
         // All Get API
 
         // Checking Authentication
@@ -105,7 +108,8 @@ async function run() {
         app.post("/payrolls", async (req, res) => {
             const task = req.body;
             const result = await payrollsCollecton.insertOne(task);
-        })
+        });
+
         app.get("/meetings", async (req, res) => {
             const result = await meetingCollection.find({}).toArray();
             res.send(result);
@@ -128,7 +132,16 @@ async function run() {
         app.get("/performance", async (req, res) => {
             const result = await hrCollecton.find({}).toArray();
             res.send(result);
-        })
+        });
+
+        // Get newsletter data
+        app.get("/newsletterMail", async (req, res) => {
+            const query = {};
+            const cursor = newsletterCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
         //Created user | Saved Data to Database | working two collection (user, company)
         app.put("/createdUser", async (req, res) => {
             let CEO = "";
@@ -201,7 +214,6 @@ async function run() {
                     res.send({ token });
                 }
             }
-
         });
 
         // All Post API
@@ -354,6 +366,33 @@ async function run() {
 
 
         //............... 
+        // post products info on sales management db
+        app.post("/addNewProduct", async (req, res) => {
+            const newProduct = req.body;
+            const result = await productDetailsCollection.insertOne(newProduct);
+            res.send(result);
+        });
+        // get products info from sales management db
+        app.get("/addProduct", async (req, res) => {
+            const query = {};
+            const cursor = productDetailsCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+        // post customer on sales management db
+        app.post("/addNewCustomer", async (req, res) => {
+            const newCustomer = req.body;
+            const result = await customerCollection.insertOne(newCustomer);
+            res.send(result);
+        });
+        // get customer on sales management db
+        app.get("/addCustomer", async (req, res) => {
+            const query = {};
+            const cursor = customerCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
     } finally {
     }
 }
