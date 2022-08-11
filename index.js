@@ -70,7 +70,7 @@ const sendMarketingEmail = (newSentEmail) => {
 async function run() {
     try {
         await client.connect();
-        const taskCollection = client.db("Tasks").collection("task");
+        const taskCollection = client.db("Tasklist").collection("task");
         // const userCollecton = client.db("Tasks").collection("user");
         const sentEmailCollection = client.db("Tasks").collection("sentEmail");
         const hrCollecton = client.db("HrManagement").collection("performance");
@@ -130,6 +130,14 @@ async function run() {
         //Get all award
         app.get("/award", async (req, res) => {
             const result = await awardCollection.find({}).toArray();
+            res.send(result);
+        });
+
+        app.get("/v1/allTasks", async (req, res) => {
+            const companyName = req.query.company;
+            const result = await (
+                await taskCollection.find({ companyName }).toArray()
+            ).reverse();
             res.send(result);
         });
 
@@ -268,7 +276,7 @@ async function run() {
 
         // All Post API
 
-        app.post("/addNewTask", async (req, res) => {
+        app.post("/v1/addNewTask", async (req, res) => {
             const task = req.body;
             const result = await taskCollection.insertOne(task);
             res.send(result);
