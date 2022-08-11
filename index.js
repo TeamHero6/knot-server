@@ -93,6 +93,7 @@ async function run() {
         const chatCollection = client.db("chat").collection("conversation");
         const productDetailsCollection = client.db("salesManagement").collection("product");
         const customerCollection = client.db("salesManagement").collection("customer");
+        const vendorCollection = client.db("salesManagement").collection("vendor");
 
         // All Get API
 
@@ -334,6 +335,20 @@ async function run() {
             res.send(result);
         });
 
+        // post Add vendor on sales management db
+        app.post("/addNewVendor", async (req, res) => {
+            const newVendor = req.body;
+            const result = await vendorCollection.insertOne(newVendor);
+            res.send(result);
+        });
+
+         // get vendor on sales management db
+         app.get("/addNewVendor", async (req, res) => {
+            const query = {};
+            const cursor = vendorCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
         // ...........
 
 
