@@ -89,6 +89,7 @@ async function run() {
             .collection("newsletter");
 
         const productDetailsCollection = client.db("salesManagement").collection("product");
+        const customerCollection = client.db("salesManagement").collection("customer");
 
         // All Get API
 
@@ -330,7 +331,7 @@ async function run() {
             res.send(result);
         });
         // post products info on sales management db
-        app.post("/addProduct", async (req, res) => {
+        app.post("/addNewProduct", async (req, res) => {
             const newProduct = req.body;
             const result = await productDetailsCollection.insertOne(newProduct);
             res.send(result);
@@ -339,6 +340,19 @@ async function run() {
         app.get("/addProduct", async (req, res) => {
             const query = {};
             const cursor = productDetailsCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+        // post customer on sales management db
+        app.post("/addNewCustomer", async (req, res) => {
+            const newCustomer = req.body;
+            const result = await customerCollection.insertOne(newCustomer);
+            res.send(result);
+        });
+        // get customer on sales management db
+        app.get("/addCustomer", async (req, res) => {
+            const query = {};
+            const cursor = customerCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
         });
