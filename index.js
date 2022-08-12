@@ -342,8 +342,8 @@ async function run() {
             res.send(result);
         });
 
-         // get vendor on sales management db
-         app.get("/addNewVendor", async (req, res) => {
+        // get vendor on sales management db
+        app.get("/addNewVendor", async (req, res) => {
             const query = {};
             const cursor = vendorCollection.find(query);
             const result = await cursor.toArray();
@@ -364,6 +364,20 @@ async function run() {
             res.send(result);
         });
 
+        //user Login UserInfo Post API
+        app.post("/loginuser", async (req, res) => {
+            const loginInfo = req.body;
+            const result = await createUserLoginCollection.insertOne(loginInfo);
+            res.send(result);
+        });
+
+        //user Login UserInfo Get API
+        app.get("/loginuser", async (req, res) => {
+            const result = await createUserLoginCollection.find({}).toArray();
+            res.send(result);
+        });
+
+
         //chat Post API
         app.post("/hrchat", async (req, res) => {
             const newChat = req.body;
@@ -371,14 +385,11 @@ async function run() {
             res.send(result);
         });
 
-
-
         // //chat Get API
         app.get("/hrchat", async (req, res) => {
             const result = await chatCollection.find({}).toArray();
             res.send(result);
         });
-
 
         //............... 
         // post products info on sales management db
