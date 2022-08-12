@@ -91,6 +91,8 @@ async function run() {
         const vendorCollection = client.db("salesManagement").collection("vendor");
         const salesOrderCollection = client.db("salesManagement").collection("salesOrder");
         const warningCollection = client.db("services").collection("warning");
+        const userCollection = client.db("AuthenticationInfo").collection("user");
+        const companyCollection = client.db("AuthenticationInfo").collection("company");
         //monir vai jindabad
         app.put('/applicant/:id', async (req, res) => {
             const id = req.params.id;
