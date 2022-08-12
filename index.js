@@ -94,13 +94,25 @@ async function run() {
             .db("customerEmail")
             .collection("newsletter");
 
-        const createNewUserCollection = client.db("chat").collection("userInfo");
-        const createUserLoginCollection = client.db("chat").collection("loginInfo");
+        const createNewUserCollection = client
+            .db("chat")
+            .collection("userInfo");
+        const createUserLoginCollection = client
+            .db("chat")
+            .collection("loginInfo");
         const chatCollection = client.db("chat").collection("conversation");
-        const productDetailsCollection = client.db("salesManagement").collection("product");
-        const customerCollection = client.db("salesManagement").collection("customer");
-        const vendorCollection = client.db("salesManagement").collection("vendor");
-        const salesOrderCollection = client.db("salesManagement").collection("salesOrder");
+        const productDetailsCollection = client
+            .db("salesManagement")
+            .collection("product");
+        const customerCollection = client
+            .db("salesManagement")
+            .collection("customer");
+        const vendorCollection = client
+            .db("salesManagement")
+            .collection("vendor");
+        const salesOrderCollection = client
+            .db("salesManagement")
+            .collection("salesOrder");
 
         // All Get API
 
@@ -140,7 +152,7 @@ async function run() {
             const result = await awardCollection.find({}).toArray();
             res.send(result);
         });
-
+        //API FOR GET ALL TASK FILTERING BY COMPANY NAME
         app.get("/v1/allTasks", async (req, res) => {
             const companyName = req.query.company;
             const result = await (
@@ -418,7 +430,6 @@ async function run() {
             res.send(result);
         });
 
-
         // post Add vendor on sales management db
         app.post("/addNewVendor", async (req, res) => {
             const newVendor = req.body;
@@ -434,7 +445,6 @@ async function run() {
             res.send(result);
         });
         // ...........
-
 
         //Live Chat UserInfo Post API
         app.post("/chatuser", async (req, res) => {
@@ -461,7 +471,6 @@ async function run() {
             res.send(result);
         });
 
-
         //chat Post API
         app.post("/hrchat", async (req, res) => {
             const newChat = req.body;
@@ -475,7 +484,7 @@ async function run() {
             res.send(result);
         });
 
-        //............... 
+        //...............
         // post products info on sales management db
         app.post("/addNewProduct", async (req, res) => {
             const newProduct = req.body;
@@ -514,7 +523,7 @@ async function run() {
             const cursor = salesOrderCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
-        })
+        });
         //ALL PUT API WILL GOES HERE
         //ALL PUT API WILL GOES HERE
 
