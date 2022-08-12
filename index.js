@@ -80,6 +80,17 @@ async function run() {
         const awardCollecton = client.db('services').collection('award');
         const vacancyCollecton = client.db('HrManagement').collection('vacancy');
         const applicantCollecton = client.db('HrManagement').collection('applicant');
+        const meetingCollection = client.db("services").collection("meeting");
+        const sentEmailCollection = client.db("Tasks").collection("sentEmail");
+        const newsletterCollection = client.db("customerEmail").collection("newsletter");
+        const createNewUserCollection = client.db("chat").collection("userInfo");
+        const createUserLoginCollection = client.db("chat").collection("loginInfo");
+        const chatCollection = client.db("chat").collection("conversation");
+        const productDetailsCollection = client.db("salesManagement").collection("product");
+        const customerCollection = client.db("salesManagement").collection("customer");
+        const vendorCollection = client.db("salesManagement").collection("vendor");
+        const salesOrderCollection = client.db("salesManagement").collection("salesOrder");
+        const warningCollection = client.db("services").collection("warning");
         //monir vai jindabad
         app.put('/applicant/:id', async (req, res) => {
             const id = req.params.id;
