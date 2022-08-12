@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
-var cors = require("cors");
-var jwt = require("jsonwebtoken");
+const cors = require("cors");
+const jwt = require("jsonwebtoken");
 const port = process.env.PORT || 5000;
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
@@ -94,6 +94,13 @@ async function run() {
             .db("customerEmail")
             .collection("newsletter");
 
+        const createNewUserCollection = client.db("chat").collection("userInfo");
+        const createUserLoginCollection = client.db("chat").collection("loginInfo");
+        const chatCollection = client.db("chat").collection("conversation");
+        const productDetailsCollection = client.db("salesManagement").collection("product");
+        const customerCollection = client.db("salesManagement").collection("customer");
+        const vendorCollection = client.db("salesManagement").collection("vendor");
+
         // All Get API
 
         // Checking Authentication
@@ -160,6 +167,14 @@ async function run() {
             const perform = req.body;
             const request = await transferCollecton.insertOne(perform);
             res.send(request);
+        });
+
+        // Get newsletter data
+        app.get("/newsletterMail", async (req, res) => {
+            const query = {};
+            const cursor = newsletterCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
         });
 
         //Created user | Saved Data to Database | working two collection (user, company)
@@ -399,6 +414,91 @@ async function run() {
         app.post("/newsletter", async (req, res) => {
             const newNewsletter = req.body;
             const result = await newsletterCollection.insertOne(newNewsletter);
+            res.send(result);
+        });
+
+
+        // post Add vendor on sales management db
+        app.post("/addNewVendor", async (req, res) => {
+            const newVendor = req.body;
+            const result = await vendorCollection.insertOne(newVendor);
+            res.send(result);
+        });
+
+        // get vendor on sales management db
+        app.get("/addNewVendor", async (req, res) => {
+            const query = {};
+            const cursor = vendorCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+        // ...........
+
+
+        //Live Chat UserInfo Post API
+        app.post("/chatuser", async (req, res) => {
+            const newUserInfo = req.body;
+            const result = await createNewUserCollection.insertOne(newUserInfo);
+            res.send(result);
+        });
+        //Live Chat UserInfo Get API
+        app.get("/chatuser", async (req, res) => {
+            const result = await createNewUserCollection.find({}).toArray();
+            res.send(result);
+        });
+
+        //user Login UserInfo Post API
+        app.post("/loginuser", async (req, res) => {
+            const loginInfo = req.body;
+            const result = await createUserLoginCollection.insertOne(loginInfo);
+            res.send(result);
+        });
+
+        //user Login UserInfo Get API
+        app.get("/loginuser", async (req, res) => {
+            const result = await createUserLoginCollection.find({}).toArray();
+            res.send(result);
+        });
+
+
+        //chat Post API
+        app.post("/hrchat", async (req, res) => {
+            const newChat = req.body;
+            const result = await chatCollection.insertOne(newChat);
+            res.send(result);
+        });
+
+        // //chat Get API
+        app.get("/hrchat", async (req, res) => {
+            const result = await chatCollection.find({}).toArray();
+            res.send(result);
+        });
+
+        //............... 
+        // post products info on sales management db
+        app.post("/addNewProduct", async (req, res) => {
+            const newProduct = req.body;
+            const result = await productDetailsCollection.insertOne(newProduct);
+            res.send(result);
+        });
+        // get products info from sales management db
+        app.get("/addProduct", async (req, res) => {
+            const query = {};
+            const cursor = productDetailsCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+        // post customer on sales management db
+        app.post("/addNewCustomer", async (req, res) => {
+            const newCustomer = req.body;
+            const result = await customerCollection.insertOne(newCustomer);
+            res.send(result);
+        });
+        // get customer on sales management db
+        app.get("/addCustomer", async (req, res) => {
+            const query = {};
+            const cursor = customerCollection.find(query);
+            const result = await cursor.toArray();
             res.send(result);
         });
 
