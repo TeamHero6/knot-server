@@ -71,7 +71,7 @@ async function run() {
     try {
         await client.connect();
         const taskCollection = client.db("Tasklist").collection("task");
-        // const userCollecton = client.db("Tasks").collection("user");
+        const userCollecton = client.db("Tasks").collection("user");
         const sentEmailCollection = client.db("Tasks").collection("sentEmail");
         const hrCollecton = client.db("HrManagement").collection("performance");
         const transferCollecton = client
@@ -335,7 +335,7 @@ async function run() {
 
         app.get("/user", async (req, res) => {
             const query = {};
-            const carsor = userCollecton.find(query);
+            const carsor = await userCollecton.find(query);
             const user = await carsor.toArray();
             res.send(user);
         });
@@ -454,7 +454,8 @@ async function run() {
         });
         //Live Chat UserInfo Get API
         app.get("/chatuser", async (req, res) => {
-            const result = await createNewUserCollection.find({}).toArray();
+            const query = {}
+            const result = await createNewUserCollection.find(query).toArray();
             res.send(result);
         });
 
