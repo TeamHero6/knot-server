@@ -100,6 +100,7 @@ async function run() {
         const productDetailsCollection = client.db("salesManagement").collection("product");
         const customerCollection = client.db("salesManagement").collection("customer");
         const vendorCollection = client.db("salesManagement").collection("vendor");
+        const salesOrderCollection = client.db("salesManagement").collection("salesOrder");
 
         // All Get API
 
@@ -494,14 +495,26 @@ async function run() {
             const result = await customerCollection.insertOne(newCustomer);
             res.send(result);
         });
-        // get customer on sales management db
+        // get customer from sales management db
         app.get("/addCustomer", async (req, res) => {
             const query = {};
             const cursor = customerCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
         });
-
+        // post new order on sales management db
+        app.post("/addNewOrder", async (req, res) => {
+            const newOrder = req.body;
+            const result = await salesOrderCollection.insertOne(newOrder);
+            res.send(result);
+        });
+        // get new order from sales management db
+        app.get("/addNewOrder", async (req, res) => {
+            const query = {};
+            const cursor = salesOrderCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        })
         //ALL PUT API WILL GOES HERE
         //ALL PUT API WILL GOES HERE
 
