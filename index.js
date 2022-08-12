@@ -38,7 +38,7 @@ const auth = {
     auth: {
         api_key: process.env.MAILGUN_API_KEY,
         domain: process.env.MAILGUN_DOMAIN,
-    }
+    },
 };
 
 const nodemailerMailgun = nodemailer.createTransport(mg(auth));
@@ -69,11 +69,17 @@ const sendMarketingEmail = (newSentEmail) => {
 
 async function run() {
     try {
-        client.connect();
-        const taskCollection = client.db("Tasks").collection("task");
-        const userCollecton = client.db("Tasks").collection("user");
-        const sentEmailCollection = client.db("Tasks").collection("sentEmail");
         await client.connect();
+        const taskCollection = client.db("Tasklist").collection("task");
+        // const userCollecton = client.db("Tasks").collection("user");
+        const sentEmailCollection = client.db("Tasks").collection("sentEmail");
+        const hrCollecton = client.db("HrManagement").collection("performance");
+        const transferCollecton = client
+            .db("HrManagement")
+            .collection("transfer");
+        const payrollsCollecton = client
+            .db("HrManagement")
+            .collection("payrolls");
         const userInfoCollection = client.db("Tasks").collection("userInfo");
         const userCollection = client
             .db("AuthenticationInfo")
@@ -99,10 +105,10 @@ async function run() {
         // All Get API
 
         // Checking Authentication
-        app.get("/isLogin", verifyJWT, async (req, res) => {
+        app.get("/isLogin", async (req, res) => {
             res.send({ login: true });
         });
-        app.get("/alltasks", verifyJWT, async (req, res) => {
+        app.get("/alltasks", async (req, res) => {
             const result = await taskCollection.find({}).toArray();
             res.send(result);
         });
@@ -110,6 +116,11 @@ async function run() {
         app.post("/payrolls", async (req, res) => {
             const task = req.body;
             const result = await payrollsCollecton.insertOne(task);
+            res.send(result);
+        });
+        app.get("/payrolls", async (req, res) => {
+            const result = await payrollsCollecton.find({}).toArray();
+            res.send(result);
         });
 
         app.get("/meetings", async (req, res) => {
@@ -130,10 +141,33 @@ async function run() {
             res.send(result);
         });
 
+        app.get("/v1/allTasks", async (req, res) => {
+            const companyName = req.query.company;
+            const result = await (
+                await taskCollection.find({ companyName }).toArray()
+            ).reverse();
+            res.send(result);
+        });
+
         //performance
         app.get("/performance", async (req, res) => {
             const result = await hrCollecton.find({}).toArray();
             res.send(result);
+        });
+        app.get("/transfer", async (req, res) => {
+            const result = await transferCollecton.find({}).toArray();
+            res.send(result);
+        });
+
+        app.post("/performance", async (req, res) => {
+            const perform = req.body;
+            const request = await hrCollecton.insertOne(perform);
+            res.send(request);
+        });
+        app.post("/transfer", async (req, res) => {
+            const perform = req.body;
+            const request = await transferCollecton.insertOne(perform);
+            res.send(request);
         });
 
         // Get newsletter data
@@ -172,7 +206,7 @@ async function run() {
                 }
                 const company = {
                     companyName: userInfo.companyName,
-                    companyLogo: userInfo.companyLogo,
+                    companyLogo: userInfo.CompanyLogo,
                     CEO,
                     manager,
                     employees,
@@ -181,6 +215,16 @@ async function run() {
                     salesManager: "",
                     financeManager: "",
                 };
+                const userList = {
+                    email: userInfo.email,
+                    name: userInfo.name,
+                    password: userInfo.password,
+                    role: userInfo.role,
+                    companyLogo: userInfo.CompanyLogo,
+                    userPhoto: userInfo.userPhoto,
+                    companyName: userInfo.companyName,
+                };
+
                 const filter = {
                     email: userInfo.email,
                     companyName: userInfo.companyName,
@@ -188,6 +232,10 @@ async function run() {
                 const companyFilter = { companyName: userInfo.companyName };
                 const updateDoc = {
                     $set: company,
+                };
+
+                const userUpdateDoc = {
+                    $set: userList,
                 };
                 //send Data to Two Collection
                 const companyResult = await companyCollection.updateOne(
@@ -198,29 +246,53 @@ async function run() {
 
                 const userResult = await userCollection.updateOne(
                     companyFilter,
-                    updateDoc,
+                    userUpdateDoc,
                     options
                 );
                 if (companyResult.acknowledged && userResult.acknowledged) {
-                    const authenticationInfo = {
+                    const authInfo = {
                         email: userInfo.email,
                         role: userInfo.role,
                     };
                     const token = jwt.sign(
-                        authenticationInfo,
+                        authInfo,
                         process.env.JWT_PRIVATE_KEY,
                         {
                             expiresIn: "1d",
                         }
                     );
-                    res.send({ token });
+                    res.send({ token, loggerInfo: userList });
                 }
+            }
+        });
+
+        //Check Employee
+        app.post("/checkEmployee", async (req, res) => {
+            const info = req.body;
+            const email = info?.email;
+            const secretCode = info?.secretCode;
+            console.log(email);
+            const employee = await userCollection.findOne({ email });
+
+            if (!employee) {
+                res.send({
+                    role: false,
+                    message: "You havn't access for login",
+                });
+            }
+            if (parseInt(secretCode) !== parseInt(employee?.secretCode)) {
+                res.send({
+                    role: false,
+                    message: "Secret Code doesn't matched",
+                });
+            } else if (parseInt(secretCode) === employee?.secretCode) {
+                res.send({ role: true, message: "Congratulation!" });
             }
         });
 
         // All Post API
 
-        app.post("/addNewTask", async (req, res) => {
+        app.post("/v1/addNewTask", async (req, res) => {
             const task = req.body;
             const result = await taskCollection.insertOne(task);
             res.send(result);
@@ -311,10 +383,20 @@ async function run() {
             const signInInfo = req.body;
             const role = signInInfo.role;
             const email = signInInfo.email;
+            const authInfo = { email, role };
+
+            //Create an access Token
+            const token = jwt.sign(authInfo, process.env.JWT_PRIVATE_KEY, {
+                expiresIn: "1d",
+            });
+
+            //Generate logger info
+            const loggerInfo = await userCollection.findOne({ email: email });
+
             if (role === "CEO") {
                 const isCEO = await companyCollection.findOne({ CEO: email });
                 if (isCEO) {
-                    res.send({ role: true });
+                    res.send({ role: true, loggerInfo, token });
                 } else {
                     res.send({ role: false });
                 }
@@ -323,7 +405,7 @@ async function run() {
                     manager: email,
                 });
                 if (isManager) {
-                    res.send({ role: true });
+                    res.send({ role: true, loggerInfo, token });
                 } else {
                     res.send({ role: false });
                 }
@@ -335,6 +417,7 @@ async function run() {
             const result = await newsletterCollection.insertOne(newNewsletter);
             res.send(result);
         });
+
 
         // post Add vendor on sales management db
         app.post("/addNewVendor", async (req, res) => {
@@ -365,6 +448,20 @@ async function run() {
             res.send(result);
         });
 
+        //user Login UserInfo Post API
+        app.post("/loginuser", async (req, res) => {
+            const loginInfo = req.body;
+            const result = await createUserLoginCollection.insertOne(loginInfo);
+            res.send(result);
+        });
+
+        //user Login UserInfo Get API
+        app.get("/loginuser", async (req, res) => {
+            const result = await createUserLoginCollection.find({}).toArray();
+            res.send(result);
+        });
+
+
         //chat Post API
         app.post("/hrchat", async (req, res) => {
             const newChat = req.body;
@@ -372,14 +469,11 @@ async function run() {
             res.send(result);
         });
 
-
-
         // //chat Get API
         app.get("/hrchat", async (req, res) => {
             const result = await chatCollection.find({}).toArray();
             res.send(result);
         });
-
 
         //............... 
         // post products info on sales management db
@@ -421,6 +515,29 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         })
+        //ALL PUT API WILL GOES HERE
+        //ALL PUT API WILL GOES HERE
+
+        //createNewEmployee is for adding employee in userCollection and company collection in employees array
+        app.put("/createNewEmployee", async (req, res) => {
+            const employee = req.body;
+
+            //Create user || userCollection > user
+            const user = {
+                companyName: "",
+                companyLogo: "",
+                email: employee.email,
+                name: "",
+                secretCode: employee.passcode,
+                role: "employee",
+                userPhoto: "",
+            };
+
+            const result = await userCollection.insertOne(user);
+
+            //Incomplete Task
+            //employee add to company database in arrow
+        });
     } finally {
     }
 }
