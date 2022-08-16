@@ -29,7 +29,19 @@ async function run() {
         const awardCollecton = client.db('services').collection('award');
         const vacancyCollecton = client.db('HrManagement').collection('vacancy');
         const applicantCollecton = client.db('HrManagement').collection('applicant');
-        //monir vai jindabad
+        const employeedetailstCollecton = client.db('HrManagement').collection('employeedetails');
+       
+        // Emloyee Details api start
+        app.get("/employeedetails", async (req, res) => {
+            const result = await employeedetailstCollecton.find({}).toArray();
+            res.send(result);
+        });
+        app.post("/employeedetails", async (req, res) => {
+            const details = req.body;
+            const result = await employeedetailstCollecton.insertOne(details);
+            res.send(result);
+        });
+        // Emloyee Details api end
         app.put('/applicant/:id', async (req, res) => {
             const id = req.params.id;
             const upaprovel = req.body;
