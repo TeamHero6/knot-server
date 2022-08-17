@@ -5,9 +5,9 @@ const jwt = require("jsonwebtoken");
 const port = process.env.PORT || 5000;
 require("dotenv").config();
 const { MongoClient, ServerApiVersion } = require("mongodb");
-const ObjectId = require('mongodb').ObjectId;
-const nodemailer = require('nodemailer');
-const mg = require('nodemailer-mailgun-transport');
+const ObjectId = require("mongodb").ObjectId;
+const nodemailer = require("nodemailer");
+const mg = require("nodemailer-mailgun-transport");
 
 //middleWare
 app.use(cors());
@@ -72,29 +72,55 @@ async function run() {
     try {
         client.connect();
         const taskCollection = client.db("Tasks").collection("task");
-        const userCollecton = client.db('Tasks').collection('user');
-        const hrCollecton = client.db('HrManagement').collection('performance');
-        const transferCollecton = client.db('HrManagement').collection('transfer');
-        const payrollsCollecton = client.db('HrManagement').collection('payrolls');
-        const warningCollecton = client.db('services').collection('warning');
-        const awardCollecton = client.db('services').collection('award');
-        const vacancyCollecton = client.db('HrManagement').collection('vacancy');
-        const applicantCollecton = client.db('HrManagement').collection('applicant');
+        const userCollecton = client.db("Tasks").collection("user");
+        const hrCollecton = client.db("HrManagement").collection("performance");
+        const transferCollecton = client
+            .db("HrManagement")
+            .collection("transfer");
+        const payrollsCollecton = client
+            .db("HrManagement")
+            .collection("payrolls");
+        const warningCollecton = client.db("services").collection("warning");
+        const awardCollecton = client.db("services").collection("award");
+        const vacancyCollecton = client
+            .db("HrManagement")
+            .collection("vacancy");
+        const applicantCollecton = client
+            .db("HrManagement")
+            .collection("applicant");
         const meetingCollection = client.db("services").collection("meeting");
         const sentEmailCollection = client.db("Tasks").collection("sentEmail");
-        const newsletterCollection = client.db("customerEmail").collection("newsletter");
-        const createNewUserCollection = client.db("chat").collection("userInfo");
-        const createUserLoginCollection = client.db("chat").collection("loginInfo");
+        const newsletterCollection = client
+            .db("customerEmail")
+            .collection("newsletter");
+        const createNewUserCollection = client
+            .db("chat")
+            .collection("userInfo");
+        const createUserLoginCollection = client
+            .db("chat")
+            .collection("loginInfo");
         const chatCollection = client.db("chat").collection("conversation");
-        const productDetailsCollection = client.db("salesManagement").collection("product");
-        const customerCollection = client.db("salesManagement").collection("customer");
-        const vendorCollection = client.db("salesManagement").collection("vendor");
-        const salesOrderCollection = client.db("salesManagement").collection("salesOrder");
+        const productDetailsCollection = client
+            .db("salesManagement")
+            .collection("product");
+        const customerCollection = client
+            .db("salesManagement")
+            .collection("customer");
+        const vendorCollection = client
+            .db("salesManagement")
+            .collection("vendor");
+        const salesOrderCollection = client
+            .db("salesManagement")
+            .collection("salesOrder");
         const warningCollection = client.db("services").collection("warning");
-        const userCollection = client.db("AuthenticationInfo").collection("user");
-        const companyCollection = client.db("AuthenticationInfo").collection("company");
+        const userCollection = client
+            .db("AuthenticationInfo")
+            .collection("user");
+        const companyCollection = client
+            .db("AuthenticationInfo")
+            .collection("company");
         //monir vai jindabad
-        app.put('/applicant/:id', async (req, res) => {
+        app.put("/applicant/:id", async (req, res) => {
             const id = req.params.id;
             const upaprovel = req.body;
             const filter = { _id: ObjectId(id) };
@@ -104,20 +130,22 @@ async function run() {
             const updateDoc = {
                 $set: {
                     aprovel: upaprovel.aprovel,
-
-                }
+                },
             };
-            const result = await userCollecton.updateOne(filter, updateDoc, options);
+            const result = await userCollecton.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
             res.send(result);
-
-        })
+        });
         app.get("/applicant", async (req, res) => {
             const result = await applicantCollecton.find({}).toArray();
             res.send(result);
         });
         app.delete("/applicant/:id", async (req, res) => {
             const id = req.params.id;
-            const query = { _id: ObjectId(id) }
+            const query = { _id: ObjectId(id) };
             const result = await applicantCollecton.deleteOne(query);
             res.send(result);
         });
@@ -133,7 +161,7 @@ async function run() {
         });
         app.delete("/vacancy/:id", async (req, res) => {
             const id = req.params.id;
-            const query = { _id: ObjectId(id) }
+            const query = { _id: ObjectId(id) };
             const result = await vacancyCollecton.deleteOne(query);
             res.send(result);
         });
@@ -144,7 +172,7 @@ async function run() {
             res.send(result);
         });
 
-        app.put('/users/:id', async (req, res) => {
+        app.put("/users/:id", async (req, res) => {
             const id = req.params.id;
             const upaprovel = req.body;
             const filter = { _id: ObjectId(id) };
@@ -154,14 +182,16 @@ async function run() {
             const updateDoc = {
                 $set: {
                     aprovel: upaprovel.aprovel,
-
-                }
+                },
             };
-            const result = await userCollecton.updateOne(filter, updateDoc, options);
+            const result = await userCollecton.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
             res.send(result);
-
-        })
-        app.put('/alltasks/:id', async (req, res) => {
+        });
+        app.put("/alltasks/:id", async (req, res) => {
             const id = req.params.id;
             const uptask = req.body;
             const filter = { _id: ObjectId(id) };
@@ -171,14 +201,16 @@ async function run() {
             const updateDoc = {
                 $set: {
                     intask: uptask.intask,
-
-                }
+                },
             };
-            const result = await taskCollection.updateOne(filter, updateDoc, options);
+            const result = await taskCollection.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
             res.send(result);
-
-        })
-        app.put('/warning/:id', async (req, res) => {
+        });
+        app.put("/warning/:id", async (req, res) => {
             const id = req.params.id;
             const upwarning = req.body;
             const filter = { _id: ObjectId(id) };
@@ -188,14 +220,16 @@ async function run() {
             const updateDoc = {
                 $set: {
                     infeed: upwarning.infeed,
-
-                }
+                },
             };
-            const result = await warningCollecton.updateOne(filter, updateDoc, options);
+            const result = await warningCollecton.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
             res.send(result);
-
-        })
-        app.put('/award/:id', async (req, res) => {
+        });
+        app.put("/award/:id", async (req, res) => {
             const id = req.params.id;
             const leaderup = req.body;
             const filter = { _id: ObjectId(id) };
@@ -205,13 +239,15 @@ async function run() {
             const updateDoc = {
                 $set: {
                     ledarfeed: leaderup.ledarfeed,
-
-                }
+                },
             };
-            const result = await awardCollecton.updateOne(filter, updateDoc, options);
+            const result = await awardCollecton.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
             res.send(result);
-
-        })
+        });
 
         app.get("/award", async (req, res) => {
             const result = await awardCollecton.find({}).toArray();
@@ -419,15 +455,14 @@ async function run() {
             res.send(result);
         });
 
-        app.get('/users', async (req, res) => {
-
+        app.get("/users", async (req, res) => {
             const query = {};
             const carsor = await userCollecton.find(query);
             const user = await carsor.toArray();
             res.send(user);
-        })
+        });
 
-        app.post('/users', async (req, res) => {
+        app.post("/users", async (req, res) => {
             const newuser = req.body;
             const result = await userCollecton.insertOne(newuser);
 
@@ -466,7 +501,7 @@ async function run() {
         //post award info to DB
         app.post("/createAward", async (req, res) => {
             const newAward = req.body;
-            const result = await awardCollection.insertOne(newAward);
+            const result = await awardCollecton.insertOne(newAward);
             res.send(result);
         });
 
@@ -541,7 +576,7 @@ async function run() {
         });
         //Live Chat UserInfo Get API
         app.get("/chatuser", async (req, res) => {
-            const query = {}
+            const query = {};
             const result = await createNewUserCollection.find(query).toArray();
             res.send(result);
         });
