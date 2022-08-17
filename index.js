@@ -30,7 +30,36 @@ async function run() {
         const vacancyCollecton = client.db('HrManagement').collection('vacancy');
         const applicantCollecton = client.db('HrManagement').collection('applicant');
         const employeedetailstCollecton = client.db('HrManagement').collection('employeedetails');
+        const joiningCollecton = client.db('HrManagement').collection('joining');
+        const TrainnigCollecton = client.db('HrManagement').collection('Trainnig');
        
+        // Trainnig employee api start
+        app.get("/Trainnig", async (req, res) => {
+            const result = await TrainnigCollecton.find({}).toArray();
+            res.send(result);
+        });
+        app.post("/Trainnig", async (req, res) => {
+            const details = req.body;
+            const result = await TrainnigCollecton.insertOne(details);
+            res.send(result);
+        });
+
+        // Trainnig employee api end
+
+        // Joning employee api start
+        app.get("/joining", async (req, res) => {
+            const result = await joiningCollecton.find({}).toArray();
+            res.send(result);
+        });
+        app.post("/joining", async (req, res) => {
+            const details = req.body;
+            const result = await joiningCollecton.insertOne(details);
+            res.send(result);
+        });
+
+        // Joning employee api end
+
+
         // Emloyee Details api start
         app.get("/employeedetails", async (req, res) => {
             const result = await employeedetailstCollecton.find({}).toArray();
