@@ -90,10 +90,13 @@ async function run() {
         const customerCollection = client.db("salesManagement").collection("customer");
         const vendorCollection = client.db("salesManagement").collection("vendor");
         const salesOrderCollection = client.db("salesManagement").collection("salesOrder");
+        const purchaseOrderCollection = client.db("salesManagement").collection("purchaseOrder");
         const warningCollection = client.db("services").collection("warning");
         const userCollection = client.db("AuthenticationInfo").collection("user");
         const companyCollection = client.db("AuthenticationInfo").collection("company");
-        //monir vai jindabad
+
+        // api api api------------------------------------------------
+
         app.put('/applicant/:id', async (req, res) => {
             const id = req.params.id;
             const upaprovel = req.body;
@@ -612,8 +615,19 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         });
-        //ALL PUT API WILL GOES HERE
-        //ALL PUT API WILL GOES HERE
+        // post new purchase order on sales management db
+        app.post("/addNewPurchaseOrder", async (req, res) => {
+            const newPurchaseOrder = req.body;
+            const result = await purchaseOrderCollection.insertOne(newPurchaseOrder);
+            res.send(result);
+        });
+        // get new purchase order from sales management db
+        app.get("/addNewPurchaseOrder", async (req, res) => {
+            const query = {};
+            const cursor = purchaseOrderCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
 
         //createNewEmployee is for adding employee in userCollection and company collection in employees array
         app.put("/createNewEmployee", async (req, res) => {
