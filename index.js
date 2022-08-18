@@ -5,9 +5,9 @@ const jwt = require("jsonwebtoken");
 const port = process.env.PORT || 5000;
 require("dotenv").config();
 const { MongoClient, ServerApiVersion } = require("mongodb");
-const ObjectId = require('mongodb').ObjectId;
-const nodemailer = require('nodemailer');
-const mg = require('nodemailer-mailgun-transport');
+const ObjectId = require("mongodb").ObjectId;
+const nodemailer = require("nodemailer");
+const mg = require("nodemailer-mailgun-transport");
 
 //middleWare
 app.use(cors());
@@ -72,32 +72,215 @@ async function run() {
     try {
         client.connect();
         const taskCollection = client.db("Tasks").collection("task");
-        const userCollecton = client.db('Tasks').collection('user');
-        const hrCollecton = client.db('HrManagement').collection('performance');
-        const transferCollecton = client.db('HrManagement').collection('transfer');
-        const payrollsCollecton = client.db('HrManagement').collection('payrolls');
-        const warningCollecton = client.db('services').collection('warning');
-        const awardCollecton = client.db('services').collection('award');
-        const vacancyCollecton = client.db('HrManagement').collection('vacancy');
-        const applicantCollecton = client.db('HrManagement').collection('applicant');
+        const userCollecton = client.db("Tasks").collection("user");
+        const hrCollecton = client.db("HrManagement").collection("performance");
+        const transferCollecton = client
+            .db("HrManagement")
+            .collection("transfer");
+        const payrollsCollecton = client
+            .db("HrManagement")
+            .collection("payrolls");
+        const warningCollecton = client.db("services").collection("warning");
+        const awardCollecton = client.db("services").collection("award");
+        const vacancyCollecton = client
+            .db("HrManagement")
+            .collection("vacancy");
+        const applicantCollecton = client
+            .db("HrManagement")
+            .collection("applicant");
+        const employeedetailstCollecton = client
+            .db("HrManagement")
+            .collection("employeedetails");
+        const joiningCollecton = client
+            .db("HrManagement")
+            .collection("joining");
+        const TrainnigCollecton = client
+            .db("HrManagement")
+            .collection("Trainnig");
         const meetingCollection = client.db("services").collection("meeting");
         const sentEmailCollection = client.db("Tasks").collection("sentEmail");
-        const newsletterCollection = client.db("customerEmail").collection("newsletter");
-        const createNewUserCollection = client.db("chat").collection("userInfo");
-        const createUserLoginCollection = client.db("chat").collection("loginInfo");
+        const newsletterCollection = client
+            .db("customerEmail")
+            .collection("newsletter");
+        const createNewUserCollection = client
+            .db("chat")
+            .collection("userInfo");
+        const createUserLoginCollection = client
+            .db("chat")
+            .collection("loginInfo");
         const chatCollection = client.db("chat").collection("conversation");
-        const productDetailsCollection = client.db("salesManagement").collection("product");
-        const customerCollection = client.db("salesManagement").collection("customer");
-        const vendorCollection = client.db("salesManagement").collection("vendor");
-        const salesOrderCollection = client.db("salesManagement").collection("salesOrder");
-        const purchaseOrderCollection = client.db("salesManagement").collection("purchaseOrder");
+        const purchaseOrderCollection = client
+            .db("salesManagement")
+            .collection("purchaseOrder");
+        const productDetailsCollection = client
+            .db("salesManagement")
+            .collection("product");
+        const customerCollection = client
+            .db("salesManagement")
+            .collection("customer");
+        const vendorCollection = client
+            .db("salesManagement")
+            .collection("vendor");
+        const salesOrderCollection = client
+            .db("salesManagement")
+            .collection("salesOrder");
         const warningCollection = client.db("services").collection("warning");
-        const userCollection = client.db("AuthenticationInfo").collection("user");
-        const companyCollection = client.db("AuthenticationInfo").collection("company");
+        const userCollection = client
+            .db("AuthenticationInfo")
+            .collection("user");
+        const companyCollection = client
+            .db("AuthenticationInfo")
+            .collection("company");
+        const partnerCollection = client
+            .db("FinanceManagement")
+            .collection("Partner");
+        const cashBookCollection = client
+            .db("FinanceManagement")
+            .collection("cashBook");
+        const bankBookCollection = client
+            .db("FinanceManagement")
+            .collection("bankBook");
+        const attendanceCollection = client
+            .db("UserDashboard")
+            .collection("attendance");
+        const attendanceEndCollection = client
+            .db("UserDashboard")
+            .collection("attendanceEmd");
 
-        // api api api------------------------------------------------
+        // coded from habib
+        // post Add Partner on Finance management db
+        app.post("/addPartner", async (req, res) => {
+            const newPartner = req.body;
+            const result = await partnerCollection.insertOne(newPartner);
+            res.send(result);
+        });
 
-        app.put('/applicant/:id', async (req, res) => {
+        // get Partner on sales management db
+        app.get("/partner", async (req, res) => {
+            const query = {};
+            const cursor = partnerCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        // Update Invest in partner
+        app.put("/partner/:id", async (req, res) => {
+            const id = req.params.id;
+            const UpdateInvest = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    UpdateInvest,
+                },
+            };
+            const result = await partnerCollection.updateOne(
+                filter,
+                updatedDoc,
+                options
+            );
+            res.send(result);
+        });
+
+        // post CashBook on Finance management db
+        app.post("/cashBook", async (req, res) => {
+            const newCashBook = req.body;
+            const result = await cashBookCollection.insertOne(newCashBook);
+            res.send(result);
+        });
+
+        // Get CashBook on Finance management db
+        app.get("/cashBook", async (req, res) => {
+            const query = {};
+            const cursor = cashBookCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        // post BankBook on Finance management db
+        app.post("/bankBook", async (req, res) => {
+            const newBankBook = req.body;
+            const result = await bankBookCollection.insertOne(newBankBook);
+            res.send(result);
+        });
+
+        // Get CashBook on Finance management db
+        app.get("/bankBook", async (req, res) => {
+            const query = {};
+            const cursor = bankBookCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        // post Attendance on User Dashboard db
+        app.post("/attendance", async (req, res) => {
+            const newAttendance = req.body;
+            const result = await attendanceCollection.insertOne(newAttendance);
+            res.send(result);
+        });
+
+        // post Attendance End on User Dashboard db
+        app.post("/attendanceEnd", async (req, res) => {
+            const newAttendance = req.body;
+            const result = await attendanceEndCollection.insertOne(
+                newAttendance
+            );
+            res.send(result);
+        });
+
+        // Get Attendance on Finance management db
+        app.get("/attendance", async (req, res) => {
+            const query = {};
+            const cursor = attendanceCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        // Get AttendanceEnd on Finance management db
+        app.get("/attendanceEnd", async (req, res) => {
+            const query = {};
+            const cursor = attendanceEndCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+        // Trainnig employee api start
+        app.get("/Trainnig", async (req, res) => {
+            const result = await TrainnigCollecton.find({}).toArray();
+            res.send(result);
+        });
+        app.post("/Trainnig", async (req, res) => {
+            const details = req.body;
+            const result = await TrainnigCollecton.insertOne(details);
+            res.send(result);
+        });
+
+        // Trainnig employee api end
+
+        // Joning employee api start
+        app.get("/joining", async (req, res) => {
+            const result = await joiningCollecton.find({}).toArray();
+            res.send(result);
+        });
+        app.post("/joining", async (req, res) => {
+            const details = req.body;
+            const result = await joiningCollecton.insertOne(details);
+            res.send(result);
+        });
+
+        // Joning employee api end
+
+        // Emloyee Details api start
+        app.get("/employeedetails", async (req, res) => {
+            const result = await employeedetailstCollecton.find({}).toArray();
+            res.send(result);
+        });
+        app.post("/employeedetails", async (req, res) => {
+            const details = req.body;
+            const result = await employeedetailstCollecton.insertOne(details);
+            res.send(result);
+        });
+        // Emloyee Details api end
+        app.put("/applicant/:id", async (req, res) => {
             const id = req.params.id;
             const upaprovel = req.body;
             const filter = { _id: ObjectId(id) };
@@ -107,20 +290,22 @@ async function run() {
             const updateDoc = {
                 $set: {
                     aprovel: upaprovel.aprovel,
-
-                }
+                },
             };
-            const result = await userCollecton.updateOne(filter, updateDoc, options);
+            const result = await userCollecton.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
             res.send(result);
-
-        })
+        });
         app.get("/applicant", async (req, res) => {
             const result = await applicantCollecton.find({}).toArray();
             res.send(result);
         });
         app.delete("/applicant/:id", async (req, res) => {
             const id = req.params.id;
-            const query = { _id: ObjectId(id) }
+            const query = { _id: ObjectId(id) };
             const result = await applicantCollecton.deleteOne(query);
             res.send(result);
         });
@@ -136,7 +321,7 @@ async function run() {
         });
         app.delete("/vacancy/:id", async (req, res) => {
             const id = req.params.id;
-            const query = { _id: ObjectId(id) }
+            const query = { _id: ObjectId(id) };
             const result = await vacancyCollecton.deleteOne(query);
             res.send(result);
         });
@@ -147,7 +332,7 @@ async function run() {
             res.send(result);
         });
 
-        app.put('/users/:id', async (req, res) => {
+        app.put("/users/:id", async (req, res) => {
             const id = req.params.id;
             const upaprovel = req.body;
             const filter = { _id: ObjectId(id) };
@@ -157,14 +342,16 @@ async function run() {
             const updateDoc = {
                 $set: {
                     aprovel: upaprovel.aprovel,
-
-                }
+                },
             };
-            const result = await userCollecton.updateOne(filter, updateDoc, options);
+            const result = await userCollecton.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
             res.send(result);
-
-        })
-        app.put('/alltasks/:id', async (req, res) => {
+        });
+        app.put("/alltasks/:id", async (req, res) => {
             const id = req.params.id;
             const uptask = req.body;
             const filter = { _id: ObjectId(id) };
@@ -174,14 +361,16 @@ async function run() {
             const updateDoc = {
                 $set: {
                     intask: uptask.intask,
-
-                }
+                },
             };
-            const result = await taskCollection.updateOne(filter, updateDoc, options);
+            const result = await taskCollection.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
             res.send(result);
-
-        })
-        app.put('/warning/:id', async (req, res) => {
+        });
+        app.put("/warning/:id", async (req, res) => {
             const id = req.params.id;
             const upwarning = req.body;
             const filter = { _id: ObjectId(id) };
@@ -191,14 +380,16 @@ async function run() {
             const updateDoc = {
                 $set: {
                     infeed: upwarning.infeed,
-
-                }
+                },
             };
-            const result = await warningCollecton.updateOne(filter, updateDoc, options);
+            const result = await warningCollecton.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
             res.send(result);
-
-        })
-        app.put('/award/:id', async (req, res) => {
+        });
+        app.put("/award/:id", async (req, res) => {
             const id = req.params.id;
             const leaderup = req.body;
             const filter = { _id: ObjectId(id) };
@@ -208,13 +399,15 @@ async function run() {
             const updateDoc = {
                 $set: {
                     ledarfeed: leaderup.ledarfeed,
-
-                }
+                },
             };
-            const result = await awardCollecton.updateOne(filter, updateDoc, options);
+            const result = await awardCollecton.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
             res.send(result);
-
-        })
+        });
 
         app.get("/award", async (req, res) => {
             const result = await awardCollecton.find({}).toArray();
@@ -422,15 +615,14 @@ async function run() {
             res.send(result);
         });
 
-        app.get('/users', async (req, res) => {
-
+        app.get("/users", async (req, res) => {
             const query = {};
             const carsor = await userCollecton.find(query);
             const user = await carsor.toArray();
             res.send(user);
-        })
+        });
 
-        app.post('/users', async (req, res) => {
+        app.post("/users", async (req, res) => {
             const newuser = req.body;
             const result = await userCollecton.insertOne(newuser);
 
@@ -469,14 +661,25 @@ async function run() {
         //post award info to DB
         app.post("/createAward", async (req, res) => {
             const newAward = req.body;
-            const result = await awardCollection.insertOne(newAward);
+            const result = await awardCollecton.insertOne(newAward);
             res.send(result);
         });
 
         //CreateWarning | Save to DB
         app.post("/createWarning", async (req, res) => {
             const newWarning = req.body;
-            const result = await warningCollection.insertOne(newWarning);
+            //Get Name from user
+            const email = newWarning.warningFor;
+            const filter = { email };
+            const userInfo = await userCollection.findOne(filter);
+
+            // Create new object for insert data to mongoDB
+            const updatedWarning = {
+                ...newWarning,
+                name: userInfo.name,
+                photo: userInfo.userPhoto,
+            };
+            const result = await warningCollection.insertOne(updatedWarning);
             res.send(result);
         });
 
@@ -544,7 +747,7 @@ async function run() {
         });
         //Live Chat UserInfo Get API
         app.get("/chatuser", async (req, res) => {
-            const query = {}
+            const query = {};
             const result = await createNewUserCollection.find(query).toArray();
             res.send(result);
         });
@@ -618,7 +821,9 @@ async function run() {
         // post new purchase order on sales management db
         app.post("/addNewPurchaseOrder", async (req, res) => {
             const newPurchaseOrder = req.body;
-            const result = await purchaseOrderCollection.insertOne(newPurchaseOrder);
+            const result = await purchaseOrderCollection.insertOne(
+                newPurchaseOrder
+            );
             res.send(result);
         });
         // get new purchase order from sales management db
@@ -639,12 +844,16 @@ async function run() {
             const updateDoc = {
                 $set: {
                     paidAmount,
-                    dueAmount
+                    dueAmount,
                 },
             };
-            const result = await purchaseOrderCollection.updateOne(filter, updateDoc, options);
+            const result = await purchaseOrderCollection.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
             res.send(result);
-        })
+        });
 
         //createNewEmployee is for adding employee in userCollection and company collection in employees array
         app.put("/createNewEmployee", async (req, res) => {
