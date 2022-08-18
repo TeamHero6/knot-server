@@ -109,6 +109,9 @@ async function run() {
             .db("chat")
             .collection("loginInfo");
         const chatCollection = client.db("chat").collection("conversation");
+        const purchaseOrderCollection = client
+            .db("salesManagement")
+            .collection("purchaseOrder");
         const productDetailsCollection = client
             .db("salesManagement")
             .collection("product");
@@ -815,8 +818,42 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         });
-        //ALL PUT API WILL GOES HERE
-        //ALL PUT API WILL GOES HERE
+        // post new purchase order on sales management db
+        app.post("/addNewPurchaseOrder", async (req, res) => {
+            const newPurchaseOrder = req.body;
+            const result = await purchaseOrderCollection.insertOne(
+                newPurchaseOrder
+            );
+            res.send(result);
+        });
+        // get new purchase order from sales management db
+        app.get("/addNewPurchaseOrder", async (req, res) => {
+            const query = {};
+            const cursor = purchaseOrderCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+        // put new purchase order at sales management db
+        app.put("/addNewPurchaseOrder/:id", async (req, res) => {
+            const id = req.params.id;
+            const amount = req.body;
+            console.log(amount);
+            const { paidAmount, dueAmount } = amount;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    paidAmount,
+                    dueAmount,
+                },
+            };
+            const result = await purchaseOrderCollection.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
+            res.send(result);
+        });
 
         //createNewEmployee is for adding employee in userCollection and company collection in employees array
         app.put("/createNewEmployee", async (req, res) => {
