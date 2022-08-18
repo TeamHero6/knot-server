@@ -128,7 +128,118 @@ async function run() {
         const companyCollection = client
             .db("AuthenticationInfo")
             .collection("company");
+        const partnerCollection = client
+            .db("FinanceManagement")
+            .collection("Partner");
+        const cashBookCollection = client
+            .db("FinanceManagement")
+            .collection("cashBook");
+        const bankBookCollection = client
+            .db("FinanceManagement")
+            .collection("bankBook");
+        const attendanceCollection = client
+            .db("UserDashboard")
+            .collection("attendance");
+        const attendanceEndCollection = client
+            .db("UserDashboard")
+            .collection("attendanceEmd");
 
+        // coded from habib
+        // post Add Partner on Finance management db
+        app.post("/addPartner", async (req, res) => {
+            const newPartner = req.body;
+            const result = await partnerCollection.insertOne(newPartner);
+            res.send(result);
+        });
+
+        // get Partner on sales management db
+        app.get("/partner", async (req, res) => {
+            const query = {};
+            const cursor = partnerCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        // Update Invest in partner
+        app.put("/partner/:id", async (req, res) => {
+            const id = req.params.id;
+            const UpdateInvest = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    UpdateInvest,
+                },
+            };
+            const result = await partnerCollection.updateOne(
+                filter,
+                updatedDoc,
+                options
+            );
+            res.send(result);
+        });
+
+        // post CashBook on Finance management db
+        app.post("/cashBook", async (req, res) => {
+            const newCashBook = req.body;
+            const result = await cashBookCollection.insertOne(newCashBook);
+            res.send(result);
+        });
+
+        // Get CashBook on Finance management db
+        app.get("/cashBook", async (req, res) => {
+            const query = {};
+            const cursor = cashBookCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        // post BankBook on Finance management db
+        app.post("/bankBook", async (req, res) => {
+            const newBankBook = req.body;
+            const result = await bankBookCollection.insertOne(newBankBook);
+            res.send(result);
+        });
+
+        // Get CashBook on Finance management db
+        app.get("/bankBook", async (req, res) => {
+            const query = {};
+            const cursor = bankBookCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        // post Attendance on User Dashboard db
+        app.post("/attendance", async (req, res) => {
+            const newAttendance = req.body;
+            const result = await attendanceCollection.insertOne(newAttendance);
+            res.send(result);
+        });
+
+        // post Attendance End on User Dashboard db
+        app.post("/attendanceEnd", async (req, res) => {
+            const newAttendance = req.body;
+            const result = await attendanceEndCollection.insertOne(
+                newAttendance
+            );
+            res.send(result);
+        });
+
+        // Get Attendance on Finance management db
+        app.get("/attendance", async (req, res) => {
+            const query = {};
+            const cursor = attendanceCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        // Get AttendanceEnd on Finance management db
+        app.get("/attendanceEnd", async (req, res) => {
+            const query = {};
+            const cursor = attendanceEndCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
         // Trainnig employee api start
         app.get("/Trainnig", async (req, res) => {
             const result = await TrainnigCollecton.find({}).toArray();
