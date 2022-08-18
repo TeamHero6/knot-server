@@ -628,6 +628,23 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         });
+        // put new purchase order at sales management db
+        app.put("/addNewPurchaseOrder/:id", async (req, res) => {
+            const id = req.params.id;
+            const amount = req.body;
+            console.log(amount);
+            const { paidAmount, dueAmount } = amount;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    paidAmount,
+                    dueAmount
+                },
+            };
+            const result = await purchaseOrderCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+        })
 
         //createNewEmployee is for adding employee in userCollection and company collection in employees array
         app.put("/createNewEmployee", async (req, res) => {
