@@ -72,57 +72,6 @@ async function run() {
     try {
         client.connect();
         const taskCollection = client.db("Tasks").collection("task");
-        const userCollecton = client.db('Tasks').collection('user');
-        const hrCollecton = client.db('HrManagement').collection('performance');
-        const transferCollecton = client.db('HrManagement').collection('transfer');
-        const payrollsCollecton = client.db('HrManagement').collection('payrolls');
-        const warningCollecton = client.db('services').collection('warning');
-        const awardCollecton = client.db('services').collection('award');
-        const vacancyCollecton = client.db('HrManagement').collection('vacancy');
-        const applicantCollecton = client.db('HrManagement').collection('applicant');
-        const employeedetailstCollecton = client.db('HrManagement').collection('employeedetails');
-        const joiningCollecton = client.db('HrManagement').collection('joining');
-        const TrainnigCollecton = client.db('HrManagement').collection('Trainnig');
-       
-        // Trainnig employee api start
-        app.get("/Trainnig", async (req, res) => {
-            const result = await TrainnigCollecton.find({}).toArray();
-            res.send(result);
-        });
-        app.post("/Trainnig", async (req, res) => {
-            const details = req.body;
-            const result = await TrainnigCollecton.insertOne(details);
-            res.send(result);
-        });
-
-        // Trainnig employee api end
-
-        // Joning employee api start
-        app.get("/joining", async (req, res) => {
-            const result = await joiningCollecton.find({}).toArray();
-            res.send(result);
-        });
-        app.post("/joining", async (req, res) => {
-            const details = req.body;
-            const result = await joiningCollecton.insertOne(details);
-            res.send(result);
-        });
-
-        // Joning employee api end
-
-
-        // Emloyee Details api start
-        app.get("/employeedetails", async (req, res) => {
-            const result = await employeedetailstCollecton.find({}).toArray();
-            res.send(result);
-        });
-        app.post("/employeedetails", async (req, res) => {
-            const details = req.body;
-            const result = await employeedetailstCollecton.insertOne(details);
-            res.send(result);
-        });
-        // Emloyee Details api end
-        app.put('/applicant/:id', async (req, res) => {
         const userCollecton = client.db("Tasks").collection("user");
         const hrCollecton = client.db("HrManagement").collection("performance");
         const transferCollecton = client
@@ -139,6 +88,15 @@ async function run() {
         const applicantCollecton = client
             .db("HrManagement")
             .collection("applicant");
+        const employeedetailstCollecton = client
+            .db("HrManagement")
+            .collection("employeedetails");
+        const joiningCollecton = client
+            .db("HrManagement")
+            .collection("joining");
+        const TrainnigCollecton = client
+            .db("HrManagement")
+            .collection("Trainnig");
         const meetingCollection = client.db("services").collection("meeting");
         const sentEmailCollection = client.db("Tasks").collection("sentEmail");
         const newsletterCollection = client
@@ -170,6 +128,44 @@ async function run() {
         const companyCollection = client
             .db("AuthenticationInfo")
             .collection("company");
+
+        // Trainnig employee api start
+        app.get("/Trainnig", async (req, res) => {
+            const result = await TrainnigCollecton.find({}).toArray();
+            res.send(result);
+        });
+        app.post("/Trainnig", async (req, res) => {
+            const details = req.body;
+            const result = await TrainnigCollecton.insertOne(details);
+            res.send(result);
+        });
+
+        // Trainnig employee api end
+
+        // Joning employee api start
+        app.get("/joining", async (req, res) => {
+            const result = await joiningCollecton.find({}).toArray();
+            res.send(result);
+        });
+        app.post("/joining", async (req, res) => {
+            const details = req.body;
+            const result = await joiningCollecton.insertOne(details);
+            res.send(result);
+        });
+
+        // Joning employee api end
+
+        // Emloyee Details api start
+        app.get("/employeedetails", async (req, res) => {
+            const result = await employeedetailstCollecton.find({}).toArray();
+            res.send(result);
+        });
+        app.post("/employeedetails", async (req, res) => {
+            const details = req.body;
+            const result = await employeedetailstCollecton.insertOne(details);
+            res.send(result);
+        });
+        // Emloyee Details api end
         app.put("/applicant/:id", async (req, res) => {
             const id = req.params.id;
             const upaprovel = req.body;
@@ -558,7 +554,18 @@ async function run() {
         //CreateWarning | Save to DB
         app.post("/createWarning", async (req, res) => {
             const newWarning = req.body;
-            const result = await warningCollection.insertOne(newWarning);
+            //Get Name from user
+            const email = newWarning.warningFor;
+            const filter = { email };
+            const userInfo = await userCollection.findOne(filter);
+
+            // Create new object for insert data to mongoDB
+            const updatedWarning = {
+                ...newWarning,
+                name: userInfo.name,
+                photo: userInfo.userPhoto,
+            };
+            const result = await warningCollection.insertOne(updatedWarning);
             res.send(result);
         });
 
