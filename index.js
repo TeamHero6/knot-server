@@ -886,5 +886,5 @@ app.get("/", (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Knot server running on port ${port}`);
+    console.log(`Knot server running on ${port}`);
 });
