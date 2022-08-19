@@ -261,13 +261,13 @@ async function run() {
             const result = await joiningCollecton.find({}).toArray();
             res.send(result);
         });
+
+        // post data to server for joining
         app.post("/joining", async (req, res) => {
             const details = req.body;
             const result = await joiningCollecton.insertOne(details);
             res.send(result);
         });
-
-        // Joning employee api end
 
         // Emloyee Details api start
         app.get("/employeedetails", async (req, res) => {
