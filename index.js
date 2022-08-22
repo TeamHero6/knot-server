@@ -219,14 +219,29 @@ async function run() {
             res.send(result);
         });
 
-        // post Attendance End on User Dashboard db
-        app.post("/attendanceEnd", async (req, res) => {
-            const newAttendance = req.body;
-            const result = await attendanceEndCollection.insertOne(
-                newAttendance
-            );
+        // Put Attendance on User Dashboard db
+        app.put('/attendance/:id', async (req, res) => {
+            const id = req.params.id;
+            const UpdateDateTime = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    UpdateDateTime
+                }
+            };
+            const result = await attendanceCollection.updateOne(filter, updatedDoc, options);
             res.send(result);
-        });
+
+        })
+        // // post Attendance End on User Dashboard db
+        // app.post("/attendanceEnd", async (req, res) => {
+        //     const newAttendance = req.body;
+        //     const result = await attendanceEndCollection.insertOne(
+        //         newAttendance
+        //     );
+        //     res.send(result);
+        // });
 
         // Get Attendance on Finance management db
         app.get("/attendance", async (req, res) => {
@@ -237,12 +252,12 @@ async function run() {
         });
 
         // Get AttendanceEnd on Finance management db
-        app.get("/attendanceEnd", async (req, res) => {
-            const query = {};
-            const cursor = attendanceEndCollection.find(query);
-            const result = await cursor.toArray();
-            res.send(result);
-        });
+        // app.get("/attendanceEnd", async (req, res) => {
+        //     const query = {};
+        //     const cursor = attendanceEndCollection.find(query);
+        //     const result = await cursor.toArray();
+        //     res.send(result);
+        // });
         // Trainnig employee api start
         app.get("/Trainnig", async (req, res) => {
             const result = await TrainnigCollecton.find({}).toArray();
