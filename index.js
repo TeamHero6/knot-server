@@ -818,6 +818,30 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         });
+        // put new sales order from sales management db
+        app.put("/addNewOrder/:id", async (req, res) => {
+            const id = req.params.id;
+            const { isCancel } = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    isCancel
+                },
+            };
+            const result = await salesOrderCollection.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
+            res.send(result);
+        });
+        // get cancelled order in sales order from sales management db
+        app.get("/cancelledSalesOrder", async (req, res) => {
+            const query = { isCancel: "cancelled" };
+            const result = await salesOrderCollection.find(query).toArray();
+            res.send(result);
+        })
         // post new purchase order on sales management db
         app.post("/addNewPurchaseOrder", async (req, res) => {
             const newPurchaseOrder = req.body;
