@@ -836,7 +836,7 @@ async function run() {
             );
             res.send(result);
         });
-        // get cancelled order in sales order from sales management db
+        // get cancelled(returned) order in sales order from sales management db
         app.get("/cancelledSalesOrder", async (req, res) => {
             const query = { isCancel: "cancelled" };
             const result = await salesOrderCollection.find(query).toArray();
@@ -855,7 +855,11 @@ async function run() {
             const query = {};
             const cursor = purchaseOrderCollection.find(query);
             const result = await cursor.toArray();
-            res.send(result);
+            // console.log(result);
+            const quantitySum = result.reduce((prev, current) => {
+                return prev + parseInt(current.orderQuantity)
+            }, 0)
+            res.send({ result, quantitySum });
         });
         // put new purchase order at sales management db
         app.put("/addNewPurchaseOrder/:id", async (req, res) => {
