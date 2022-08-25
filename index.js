@@ -776,7 +776,11 @@ async function run() {
         //post award info to DB
         app.post("/createAward", async (req, res) => {
             const newAward = req.body;
-            const result = await awardCollecton.insertOne(newAward);
+            const { employeeEmail } = newAward;
+            const filter = { email: employeeEmail };
+            const user = await userCollection.findOne(filter);
+            const updatedAward = { ...newAward, name: user.name };
+            const result = await awardCollecton.insertOne(updatedAward);
             res.send(result);
         });
 
