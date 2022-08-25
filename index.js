@@ -885,7 +885,7 @@ async function run() {
         });
 
         //chat Post API
-        app.post("/hrchat", async (req, res) => {
+        app.post("/chat", async (req, res) => {
             const newChat = req.body;
             const result = await chatCollection.insertOne(newChat);
             res.send(result);
@@ -894,6 +894,14 @@ async function run() {
         // //chat Get API
         app.get("/hrchat", async (req, res) => {
             const result = await chatCollection.find({}).toArray();
+            res.send(result);
+        });
+
+        // Get All Coversations
+        app.get("/conversations/:department", async (req, res) => {
+            const Department = req.params.department;
+            const filter = { Department };
+            const result = await chatCollection.find(filter).toArray();
             res.send(result);
         });
 
