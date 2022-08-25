@@ -276,6 +276,27 @@ async function run() {
         });
         app.post("/employeedetails", async (req, res) => {
             const details = req.body;
+
+            // Update Data to userlist collection
+            const { Employee_Name, Department, phone, Email, Designation } =
+                details;
+            const filter = { email: Email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    name: Employee_Name,
+                    Department,
+                    phone,
+                    Designation,
+                },
+            };
+            const updateUserList = await userCollection.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
+
+            // post data tp employeedetails collection
             const result = await employeedetailstCollecton.insertOne(details);
             res.send(result);
         });
