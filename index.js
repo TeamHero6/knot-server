@@ -220,20 +220,23 @@ async function run() {
         });
 
         // Put Attendance on User Dashboard db
-        app.put('/attendance/:id', async (req, res) => {
+        app.put("/attendance/:id", async (req, res) => {
             const id = req.params.id;
             const UpdateDateTime = req.body;
             const filter = { _id: ObjectId(id) };
             const options = { upsert: true };
             const updatedDoc = {
                 $set: {
-                    UpdateDateTime
-                }
+                    UpdateDateTime,
+                },
             };
-            const result = await attendanceCollection.updateOne(filter, updatedDoc, options);
+            const result = await attendanceCollection.updateOne(
+                filter,
+                updatedDoc,
+                options
+            );
             res.send(result);
-
-        })
+        });
         // // post Attendance End on User Dashboard db
         // app.post("/attendanceEnd", async (req, res) => {
         //     const newAttendance = req.body;
@@ -453,8 +456,10 @@ async function run() {
             const result = await warningCollecton.find({}).toArray();
             res.send(result);
         });
-        app.get("/payrolls", async (req, res) => {
-            const result = await payrollsCollecton.find({}).toArray();
+        app.get("/payrolls/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const filter = { companyName };
+            const result = await payrollsCollecton.find(filter).toArray();
             res.send(result);
         });
 
@@ -464,8 +469,10 @@ async function run() {
             res.send(result);
         });
 
-        app.get("/meetings", async (req, res) => {
-            const result = await meetingCollection.find({}).toArray();
+        app.get("/meetings/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const filter = { companyName };
+            const result = await meetingCollection.find(filter).toArray();
             res.send(result);
         });
         //transfar
@@ -957,7 +964,7 @@ async function run() {
             const options = { upsert: true };
             const updateDoc = {
                 $set: {
-                    isCancel
+                    isCancel,
                 },
             };
             const result = await salesOrderCollection.updateOne(
@@ -972,7 +979,7 @@ async function run() {
             const query = { isCancel: "cancelled" };
             const result = await salesOrderCollection.find(query).toArray();
             res.send(result);
-        })
+        });
         // post new purchase order on sales management db
         app.post("/addNewPurchaseOrder", async (req, res) => {
             const newPurchaseOrder = req.body;
@@ -988,8 +995,8 @@ async function run() {
             const result = await cursor.toArray();
             // console.log(result);
             const quantitySum = result.reduce((prev, current) => {
-                return prev + parseInt(current.orderQuantity)
-            }, 0)
+                return prev + parseInt(current.orderQuantity);
+            }, 0);
             res.send({ result, quantitySum });
         });
         // put new purchase order at sales management db
