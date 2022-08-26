@@ -219,14 +219,32 @@ async function run() {
             res.send(result);
         });
 
-        // post Attendance End on User Dashboard db
-        app.post("/attendanceEnd", async (req, res) => {
-            const newAttendance = req.body;
-            const result = await attendanceEndCollection.insertOne(
-                newAttendance
+        // Put Attendance on User Dashboard db
+        app.put("/attendance/:id", async (req, res) => {
+            const id = req.params.id;
+            const UpdateDateTime = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    UpdateDateTime,
+                },
+            };
+            const result = await attendanceCollection.updateOne(
+                filter,
+                updatedDoc,
+                options
             );
             res.send(result);
         });
+        // // post Attendance End on User Dashboard db
+        // app.post("/attendanceEnd", async (req, res) => {
+        //     const newAttendance = req.body;
+        //     const result = await attendanceEndCollection.insertOne(
+        //         newAttendance
+        //     );
+        //     res.send(result);
+        // });
 
         // Get Attendance on Finance management db
         app.get("/attendance", async (req, res) => {
@@ -237,12 +255,12 @@ async function run() {
         });
 
         // Get AttendanceEnd on Finance management db
-        app.get("/attendanceEnd", async (req, res) => {
-            const query = {};
-            const cursor = attendanceEndCollection.find(query);
-            const result = await cursor.toArray();
-            res.send(result);
-        });
+        // app.get("/attendanceEnd", async (req, res) => {
+        //     const query = {};
+        //     const cursor = attendanceEndCollection.find(query);
+        //     const result = await cursor.toArray();
+        //     res.send(result);
+        // });
         // Trainnig employee api start
         app.get("/Trainnig", async (req, res) => {
             const result = await TrainnigCollecton.find({}).toArray();
@@ -276,6 +294,27 @@ async function run() {
         });
         app.post("/employeedetails", async (req, res) => {
             const details = req.body;
+
+            // Update Data to userlist collection
+            const { Employee_Name, Department, phone, Email, Designation } =
+                details;
+            const filter = { email: Email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    name: Employee_Name,
+                    Department,
+                    phone,
+                    Designation,
+                },
+            };
+            const updateUserList = await userCollection.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
+
+            // post data tp employeedetails collection
             const result = await employeedetailstCollecton.insertOne(details);
             res.send(result);
         });
@@ -417,8 +456,10 @@ async function run() {
             const result = await warningCollecton.find({}).toArray();
             res.send(result);
         });
-        app.get("/payrolls", async (req, res) => {
-            const result = await payrollsCollecton.find({}).toArray();
+        app.get("/payrolls/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const filter = { companyName };
+            const result = await payrollsCollecton.find(filter).toArray();
             res.send(result);
         });
 
@@ -428,8 +469,10 @@ async function run() {
             res.send(result);
         });
 
-        app.get("/meetings", async (req, res) => {
-            const result = await meetingCollection.find({}).toArray();
+        app.get("/meetings/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const filter = { companyName };
+            const result = await meetingCollection.find(filter).toArray();
             res.send(result);
         });
         //transfar
@@ -444,12 +487,49 @@ async function run() {
             const result = await transferCollecton.find({}).toArray();
             res.send(result);
         });
+
+        // create this api for delete specific company employee by CEO || Manager
+        app.delete("/removeEmployee/:id", async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const result = await userCollection.deleteOne(filter);
+            res.send(result);
+        });
+
+        // create this api for getting all specific company employees
+        app.get("/getAllEmployees/:company", async (req, res) => {
+            const company = req.params.company;
+            const result = await userCollection
+                .find({ companyName: company })
+                .toArray();
+            res.send(result);
+        });
+
         //API FOR GET ALL TASK FILTERING BY COMPANY NAME
         app.get("/v1/allTasks", async (req, res) => {
             const companyName = req.query.company;
             const result = await (
                 await taskCollection.find({ companyName }).toArray()
             ).reverse();
+            res.send(result);
+        });
+
+        // Update task status
+        app.put("/updateStatus", async (req, res) => {
+            const info = req.body;
+            const { status, id } = info;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    status: status,
+                },
+            };
+            const result = await taskCollection.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
             res.send(result);
         });
 
@@ -574,12 +654,50 @@ async function run() {
             }
         });
 
+        // update profile photo to DB
+        app.put("/updateProfilePhoto", async (req, res) => {
+            const photoInfo = req.body;
+            const { email, photoUrl } = photoInfo;
+            const filter = { email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    userPhoto: photoUrl,
+                },
+            };
+            const result = await userCollection.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
+            res.send(result);
+        });
+
+        // update name to DB
+        app.put("/updateName", async (req, res) => {
+            const info = req.body;
+            const { email, name } = info;
+            const filter = { email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    name,
+                },
+            };
+            const result = await userCollection.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
+            res.send(result);
+        });
+
         //Check Employee
         app.post("/checkEmployee", async (req, res) => {
             const info = req.body;
             const email = info?.email;
+            const name = info?.name;
             const secretCode = info?.secretCode;
-            console.log(email);
             const employee = await userCollection.findOne({ email });
 
             if (!employee) {
@@ -594,7 +712,11 @@ async function run() {
                     message: "Secret Code doesn't matched",
                 });
             } else if (parseInt(secretCode) === employee?.secretCode) {
-                res.send({ role: true, message: "Congratulation!" });
+                res.send({
+                    role: true,
+                    message: "Congratulation!",
+                    loggerInfo: employee,
+                });
             }
         });
 
@@ -661,7 +783,11 @@ async function run() {
         //post award info to DB
         app.post("/createAward", async (req, res) => {
             const newAward = req.body;
-            const result = await awardCollecton.insertOne(newAward);
+            const { employeeEmail } = newAward;
+            const filter = { email: employeeEmail };
+            const user = await userCollection.findOne(filter);
+            const updatedAward = { ...newAward, name: user.name };
+            const result = await awardCollecton.insertOne(updatedAward);
             res.send(result);
         });
 
@@ -697,11 +823,15 @@ async function run() {
 
             //Generate logger info
             const loggerInfo = await userCollection.findOne({ email: email });
+            const { companyName } = loggerInfo;
+            const allEmployees = await userCollection
+                .find({ companyName })
+                .toArray();
 
             if (role === "CEO") {
                 const isCEO = await companyCollection.findOne({ CEO: email });
                 if (isCEO) {
-                    res.send({ role: true, loggerInfo, token });
+                    res.send({ role: true, loggerInfo, allEmployees, token });
                 } else {
                     res.send({ role: false });
                 }
@@ -710,7 +840,7 @@ async function run() {
                     manager: email,
                 });
                 if (isManager) {
-                    res.send({ role: true, loggerInfo, token });
+                    res.send({ role: true, loggerInfo, allEmployees, token });
                 } else {
                     res.send({ role: false });
                 }
@@ -767,7 +897,7 @@ async function run() {
         });
 
         //chat Post API
-        app.post("/hrchat", async (req, res) => {
+        app.post("/chat", async (req, res) => {
             const newChat = req.body;
             const result = await chatCollection.insertOne(newChat);
             res.send(result);
@@ -776,6 +906,14 @@ async function run() {
         // //chat Get API
         app.get("/hrchat", async (req, res) => {
             const result = await chatCollection.find({}).toArray();
+            res.send(result);
+        });
+
+        // Get All Coversations
+        app.get("/conversations/:department", async (req, res) => {
+            const Department = req.params.department;
+            const filter = { Department };
+            const result = await chatCollection.find(filter).toArray();
             res.send(result);
         });
 
@@ -830,7 +968,7 @@ async function run() {
             const options = { upsert: true };
             const updateDoc = {
                 $set: {
-                    isCancel
+                    isCancel,
                 },
             };
             const result = await salesOrderCollection.updateOne(
@@ -846,7 +984,7 @@ async function run() {
             const query = { $and: [{ isCancel: "cancelled" }, { companyName: companyName }] };
             const result = await salesOrderCollection.find(query).toArray();
             res.send(result);
-        })
+        });
         // post new purchase order on sales management db
         app.post("/addNewPurchaseOrder", async (req, res) => {
             const newPurchaseOrder = req.body;
@@ -863,8 +1001,8 @@ async function run() {
             const result = await cursor.toArray();
             // console.log(result);
             const quantitySum = result.reduce((prev, current) => {
-                return prev + parseInt(current.orderQuantity)
-            }, 0)
+                return prev + parseInt(current.orderQuantity);
+            }, 0);
             res.send({ result, quantitySum });
         });
         // put new purchase order at sales management db
@@ -895,8 +1033,8 @@ async function run() {
 
             //Create user || userCollection > user
             const user = {
-                companyName: "",
-                companyLogo: "",
+                companyLogo: employee.companyLogo,
+                companyName: employee.companyName,
                 email: employee.email,
                 name: "",
                 secretCode: employee.passcode,
@@ -905,6 +1043,7 @@ async function run() {
             };
 
             const result = await userCollection.insertOne(user);
+            res.send(result);
 
             //Incomplete Task
             //employee add to company database in arrow
