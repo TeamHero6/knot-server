@@ -472,6 +472,15 @@ async function run() {
             res.send(result);
         });
 
+        // get all mettings filtering by user
+        app.get("/userMetings/:email", async (req, res) => {
+            const meetingWith = req.params.email;
+            const result = await meetingCollection
+                .find({ meetingWith })
+                .toArray();
+            res.send(result);
+        });
+
         app.get("/meetings/:companyName", async (req, res) => {
             const companyName = req.params.companyName;
             const filter = { companyName };
