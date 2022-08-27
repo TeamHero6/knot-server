@@ -856,14 +856,27 @@ async function run() {
             const newWarning = req.body;
             //Get Name from user
             const email = newWarning.warningFor;
+            const { warningDate, warningReason } = newWarning;
             const filter = { email };
             const userInfo = await userCollection.findOne(filter);
+
+            // create notification
+            const notification = {
+                type: "warning",
+                user: email,
+                warningDate,
+                warningReason,
+            };
+
+            const notificationSent = await notificationCollection.insertOne(
+                notification
+            );
 
             // Create new object for insert data to mongoDB
             const updatedWarning = {
                 ...newWarning,
-                name: userInfo.name,
-                photo: userInfo.userPhoto,
+                name: userInfo?.name,
+                photo: userInfo?.userPhoto,
             };
             const result = await warningCollection.insertOne(updatedWarning);
             res.send(result);
@@ -1041,7 +1054,9 @@ async function run() {
         // get cancelled(returned) order in sales order from sales management db
         app.get("/cancelledSalesOrder/:companyName", async (req, res) => {
             const companyName = req.params.companyName;
-            const query = { $and: [{ isCancel: "cancelled" }, { companyName: companyName }] };
+            const query = {
+                $and: [{ isCancel: "cancelled" }, { companyName: companyName }],
+            };
             const result = await salesOrderCollection.find(query).toArray();
             res.send(result);
         });
