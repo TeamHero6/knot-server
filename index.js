@@ -146,6 +146,9 @@ async function run() {
         const attendanceEndCollection = client
             .db("UserDashboard")
             .collection("attendanceEmd");
+        const notificationCollection = client
+            .db("services")
+            .collection("notification");
 
         // coded from habib
         // post Add Partner on Finance management db
@@ -774,10 +777,67 @@ async function run() {
             res.send(result);
         });
 
+        // get notification filtering by user
+        app.get("/getNotification/:email", async (req, res) => {
+            const user = req.params.email;
+            const filter = { user };
+            const result = await notificationCollection.find(filter).toArray();
+            res.send(result);
+        });
+
+        // Read all notification status update
+        app.put("/readAll/:email", async (req, res) => {
+            const email = req.params.email;
+            const filter = { user: email };
+            const updateDoc = {
+                $set: {
+                    seen: true,
+                },
+            };
+            const result = await notificationCollection.updateMany(
+                filter,
+                updateDoc
+            );
+            res.send(result);
+        });
+
+        // update seen history
+        app.put("/updateNotify/:id", async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const notification = await notificationCollection.findOne(filter);
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    seen: !notification.seen,
+                },
+            };
+            const result = await notificationCollection.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
+            res.send(result);
+        });
+
         //post new meeting
         app.post("/createNewMeeting", async (req, res) => {
             const newMeeting = req.body;
+            const { meetingWith, meetingLink, date } = newMeeting;
             const result = await meetingCollection.insertOne(newMeeting);
+
+            // sent notification to user
+            const notifyBody = {
+                type: "meeting",
+                seen: false,
+                user: meetingWith,
+                link: meetingLink,
+                time: date,
+            };
+            const notification = await notificationCollection.insertOne(
+                notifyBody
+            );
+
             res.send(result);
         });
         //post award info to DB
