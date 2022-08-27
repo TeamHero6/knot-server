@@ -921,8 +921,9 @@ async function run() {
         });
 
         // get vendor on sales management db
-        app.get("/addNewVendor", async (req, res) => {
-            const query = {};
+        app.get("/addNewVendor/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
             const cursor = vendorCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
@@ -984,8 +985,9 @@ async function run() {
             res.send(result);
         });
         // get products info from sales management db
-        app.get("/addProduct", async (req, res) => {
-            const query = {};
+        app.get("/addProduct/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
             const cursor = productDetailsCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
@@ -997,8 +999,9 @@ async function run() {
             res.send(result);
         });
         // get customer from sales management db
-        app.get("/addCustomer", async (req, res) => {
-            const query = {};
+        app.get("/addCustomer/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
             const cursor = customerCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
@@ -1010,8 +1013,9 @@ async function run() {
             res.send(result);
         });
         // get new order from sales management db
-        app.get("/addNewOrder", async (req, res) => {
-            const query = {};
+        app.get("/addNewOrder/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
             const cursor = salesOrderCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
@@ -1035,8 +1039,9 @@ async function run() {
             res.send(result);
         });
         // get cancelled(returned) order in sales order from sales management db
-        app.get("/cancelledSalesOrder", async (req, res) => {
-            const query = { isCancel: "cancelled" };
+        app.get("/cancelledSalesOrder/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { $and: [{ isCancel: "cancelled" }, { companyName: companyName }] };
             const result = await salesOrderCollection.find(query).toArray();
             res.send(result);
         });
@@ -1049,8 +1054,9 @@ async function run() {
             res.send(result);
         });
         // get new purchase order from sales management db
-        app.get("/addNewPurchaseOrder", async (req, res) => {
-            const query = {};
+        app.get("/addNewPurchaseOrder/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
             const cursor = purchaseOrderCollection.find(query);
             const result = await cursor.toArray();
             // console.log(result);
