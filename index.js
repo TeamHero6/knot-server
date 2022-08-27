@@ -156,8 +156,9 @@ async function run() {
         });
 
         // get Partner on sales management db
-        app.get("/partner", async (req, res) => {
-            const query = {};
+        app.get("/partner/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
             const cursor = partnerCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
@@ -167,11 +168,14 @@ async function run() {
         app.put("/partner/:id", async (req, res) => {
             const id = req.params.id;
             const UpdateInvest = req.body;
+            const { date, Amount, share } = UpdateInvest;
             const filter = { _id: ObjectId(id) };
             const options = { upsert: true };
             const updatedDoc = {
                 $set: {
-                    UpdateInvest,
+                    date,
+                    Amount,
+                    share,
                 },
             };
             const result = await partnerCollection.updateOne(
@@ -190,8 +194,9 @@ async function run() {
         });
 
         // Get CashBook on Finance management db
-        app.get("/cashBook", async (req, res) => {
-            const query = {};
+        app.get("/cashBook/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
             const cursor = cashBookCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
@@ -205,8 +210,9 @@ async function run() {
         });
 
         // Get CashBook on Finance management db
-        app.get("/bankBook", async (req, res) => {
-            const query = {};
+        app.get("/bankBook/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
             const cursor = bankBookCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
