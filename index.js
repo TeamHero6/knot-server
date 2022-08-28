@@ -451,8 +451,9 @@ async function run() {
             res.send(result);
         });
 
-        app.get("/award", async (req, res) => {
-            const result = await awardCollecton.find({}).toArray();
+        app.get("/award/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const result = await awardCollecton.find({ companyName }).toArray();
             res.send(result);
         });
         app.get("/warning", async (req, res) => {
@@ -490,8 +491,11 @@ async function run() {
         //transfar
 
         //Get all Warnings
-        app.get("/warnings", async (req, res) => {
-            const result = await warningCollection.find({}).toArray();
+        app.get("/warnings/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const result = await warningCollection
+                .find({ companyName })
+                .toArray();
             res.send(result);
         });
 
@@ -855,7 +859,7 @@ async function run() {
             const { employeeEmail } = newAward;
             const filter = { email: employeeEmail };
             const user = await userCollection.findOne(filter);
-            const updatedAward = { ...newAward, name: user.name };
+            const updatedAward = { ...newAward, name: user?.name };
             const result = await awardCollecton.insertOne(updatedAward);
             res.send(result);
         });
