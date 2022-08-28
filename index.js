@@ -156,8 +156,9 @@ async function run() {
         });
 
         // get Partner on sales management db
-        app.get("/partner", async (req, res) => {
-            const query = {};
+        app.get("/partner/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
             const cursor = partnerCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
@@ -167,11 +168,14 @@ async function run() {
         app.put("/partner/:id", async (req, res) => {
             const id = req.params.id;
             const UpdateInvest = req.body;
+            const { date, Amount, share } = UpdateInvest;
             const filter = { _id: ObjectId(id) };
             const options = { upsert: true };
             const updatedDoc = {
                 $set: {
-                    UpdateInvest,
+                    date,
+                    Amount,
+                    share,
                 },
             };
             const result = await partnerCollection.updateOne(
@@ -190,8 +194,9 @@ async function run() {
         });
 
         // Get CashBook on Finance management db
-        app.get("/cashBook", async (req, res) => {
-            const query = {};
+        app.get("/cashBook/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
             const cursor = cashBookCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
@@ -205,8 +210,9 @@ async function run() {
         });
 
         // Get CashBook on Finance management db
-        app.get("/bankBook", async (req, res) => {
-            const query = {};
+        app.get("/bankBook/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
             const cursor = bankBookCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
@@ -254,18 +260,16 @@ async function run() {
             res.send(result);
         });
 
-        // Get AttendanceEnd on Finance management db
-        // app.get("/attendanceEnd", async (req, res) => {
-        //     const query = {};
-        //     const cursor = attendanceEndCollection.find(query);
-        //     const result = await cursor.toArray();
-        //     res.send(result);
-        // });
+       
         // Trainnig employee api start
-        app.get("/Trainnig", async (req, res) => {
-            const result = await TrainnigCollecton.find({}).toArray();
+        app.get("/Trainnig/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
+            const cursor = TrainnigCollecton.find(query);
+            const result = await cursor.toArray();
             res.send(result);
         });
+        
         app.post("/Trainnig", async (req, res) => {
             const details = req.body;
             const result = await TrainnigCollecton.insertOne(details);
@@ -288,10 +292,18 @@ async function run() {
         });
 
         // Emloyee Details api start
-        app.get("/employeedetails", async (req, res) => {
-            const result = await employeedetailstCollecton.find({}).toArray();
+        app.get("/employeedetails/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
+            const cursor = employeedetailstCollecton.find(query);
+            const result = await cursor.toArray();
             res.send(result);
         });
+
+        // app.get("/employeedetails", async (req, res) => {
+        //     const result = await employeedetailstCollecton.find({}).toArray();
+        //     res.send(result);
+        // });
         app.post("/employeedetails", async (req, res) => {
             const details = req.body;
 
@@ -354,10 +366,14 @@ async function run() {
             const result = await applicantCollecton.insertOne(task);
             res.send(result);
         });
-        app.get("/vacancy", async (req, res) => {
-            const result = await vacancyCollecton.find({}).toArray();
+        app.get("/vacancy/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
+            const cursor = vacancyCollecton.find(query);
+            const result = await cursor.toArray();
             res.send(result);
         });
+        
         app.delete("/vacancy/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
@@ -469,6 +485,15 @@ async function run() {
             res.send(result);
         });
 
+        app.get("/userMeetings/:email", async (req, res) => {
+            const email = req.params.email;
+            // console.log(email);
+            const result = await meetingCollection.find({ meetingWith: email }).toArray();
+            console.log(result);
+            res.send(result)
+        });
+
+
         app.get("/meetings/:companyName", async (req, res) => {
             const companyName = req.params.companyName;
             const filter = { companyName };
@@ -478,16 +503,31 @@ async function run() {
         //transfar
 
         //Get all Warnings
-        app.get("/warnings", async (req, res) => {
-            const result = await warningCollection.find({}).toArray();
+        app.get("/warnings/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const filter = { companyName };
+            const result = await warningCollection.find(filter).toArray();
             res.send(result);
         });
-
-        app.get("/transfer", async (req, res) => {
-            const result = await transferCollecton.find({}).toArray();
+        app.get("/warnings", async(req,res) => {
+            const result =await warningCollection.find({}).toArray();
+            res.send(result)
+        })
+        app.get("/award/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const filter = { companyName };
+            const result = await awardCollecton.find(filter).toArray();
             res.send(result);
         });
-
+        
+        app.get("/transfer/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
+            const cursor = transferCollecton.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+        
         // create this api for delete specific company employee by CEO || Manager
         app.delete("/removeEmployee/:id", async (req, res) => {
             const id = req.params.id;
@@ -538,25 +578,29 @@ async function run() {
             const result = await transferCollecton.insertOne(task);
             res.send(result);
         });
-        app.get("/performance", async (req, res) => {
-            const result = await hrCollecton.find({}).toArray();
+        app.get("/performance/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
+            const cursor = hrCollecton.find(query);
+            const result = await cursor.toArray();
             res.send(result);
         });
-        app.get("/transfer", async (req, res) => {
-            const result = await transferCollecton.find({}).toArray();
-            res.send(result);
-        });
+        
+        // app.get("/transfer", async (req, res) => {
+        //     const result = await transferCollecton.find({}).toArray();
+        //     res.send(result);
+        // });
 
         app.post("/performance", async (req, res) => {
             const perform = req.body;
             const request = await hrCollecton.insertOne(perform);
             res.send(request);
         });
-        app.post("/transfer", async (req, res) => {
-            const perform = req.body;
-            const request = await transferCollecton.insertOne(perform);
-            res.send(request);
-        });
+        // app.post("/transfer", async (req, res) => {
+        //     const perform = req.body;
+        //     const request = await transferCollecton.insertOne(perform);
+        //     res.send(request);
+        // });
 
         // Get newsletter data
         app.get("/newsletterMail/:companyName", async (req, res) => {
@@ -721,11 +765,11 @@ async function run() {
             }
         });
 
-        app.post("/performance", async (req, res) => {
-            const task = req.body;
-            const result = await hrCollecton.insertOne(task);
-            res.send(result);
-        });
+        // app.post("/performance", async (req, res) => {
+        //     const task = req.body;
+        //     const result = await hrCollecton.insertOne(task);
+        //     res.send(result);
+        // });
 
         app.get("/alltasks", async (req, res) => {
             const result = await taskCollection.find({}).toArray();
@@ -738,11 +782,19 @@ async function run() {
             res.send(result);
         });
 
-        app.get("/users", async (req, res) => {
-            const query = {};
-            const carsor = await userCollecton.find(query);
-            const user = await carsor.toArray();
-            res.send(user);
+        app.get("/users/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const filter = { companyName };
+            const result = await userCollecton.find(filter).toArray();
+            res.send(result);
+        });
+
+        app.get("/users/:email", async (req, res) => {
+            const email = req.params.email;
+            console.log(email);
+            const result = await userCollecton.find({ email: email }).toArray();
+            console.log(result);
+            res.send(result)
         });
 
         app.post("/users", async (req, res) => {
