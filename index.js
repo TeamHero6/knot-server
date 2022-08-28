@@ -485,6 +485,15 @@ async function run() {
             res.send(result);
         });
 
+        app.get("/userMeetings/:email", async (req, res) => {
+            const email = req.params.email;
+            // console.log(email);
+            const result = await meetingCollection.find({ meetingWith: email }).toArray();
+            console.log(result);
+            res.send(result)
+        });
+
+
         app.get("/meetings/:companyName", async (req, res) => {
             const companyName = req.params.companyName;
             const filter = { companyName };
@@ -577,21 +586,21 @@ async function run() {
             res.send(result);
         });
         
-        app.get("/transfer", async (req, res) => {
-            const result = await transferCollecton.find({}).toArray();
-            res.send(result);
-        });
+        // app.get("/transfer", async (req, res) => {
+        //     const result = await transferCollecton.find({}).toArray();
+        //     res.send(result);
+        // });
 
         app.post("/performance", async (req, res) => {
             const perform = req.body;
             const request = await hrCollecton.insertOne(perform);
             res.send(request);
         });
-        app.post("/transfer", async (req, res) => {
-            const perform = req.body;
-            const request = await transferCollecton.insertOne(perform);
-            res.send(request);
-        });
+        // app.post("/transfer", async (req, res) => {
+        //     const perform = req.body;
+        //     const request = await transferCollecton.insertOne(perform);
+        //     res.send(request);
+        // });
 
         // Get newsletter data
         app.get("/newsletterMail", async (req, res) => {
@@ -755,11 +764,11 @@ async function run() {
             }
         });
 
-        app.post("/performance", async (req, res) => {
-            const task = req.body;
-            const result = await hrCollecton.insertOne(task);
-            res.send(result);
-        });
+        // app.post("/performance", async (req, res) => {
+        //     const task = req.body;
+        //     const result = await hrCollecton.insertOne(task);
+        //     res.send(result);
+        // });
 
         app.get("/alltasks", async (req, res) => {
             const result = await taskCollection.find({}).toArray();
@@ -772,11 +781,19 @@ async function run() {
             res.send(result);
         });
 
-        app.get("/users", async (req, res) => {
-            const query = {};
-            const carsor = await userCollecton.find(query);
-            const user = await carsor.toArray();
-            res.send(user);
+        app.get("/users/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const filter = { companyName };
+            const result = await userCollecton.find(filter).toArray();
+            res.send(result);
+        });
+
+        app.get("/users/:email", async (req, res) => {
+            const email = req.params.email;
+            console.log(email);
+            const result = await userCollecton.find({ email: email }).toArray();
+            console.log(result);
+            res.send(result)
         });
 
         app.post("/users", async (req, res) => {
