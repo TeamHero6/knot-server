@@ -147,6 +147,9 @@ async function run() {
         const attendanceEndCollection = client
             .db("UserDashboard")
             .collection("attendanceEmd");
+        const notificationCollection = client
+            .db("services")
+            .collection("notification");
 
         // coded from habib
         // post Add Partner on Finance management db
@@ -220,14 +223,32 @@ async function run() {
             res.send(result);
         });
 
-        // post Attendance End on User Dashboard db
-        app.post("/attendanceEnd", async (req, res) => {
-            const newAttendance = req.body;
-            const result = await attendanceEndCollection.insertOne(
-                newAttendance
+        // Put Attendance on User Dashboard db
+        app.put("/attendance/:id", async (req, res) => {
+            const id = req.params.id;
+            const UpdateDateTime = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    UpdateDateTime,
+                },
+            };
+            const result = await attendanceCollection.updateOne(
+                filter,
+                updatedDoc,
+                options
             );
             res.send(result);
         });
+        // // post Attendance End on User Dashboard db
+        // app.post("/attendanceEnd", async (req, res) => {
+        //     const newAttendance = req.body;
+        //     const result = await attendanceEndCollection.insertOne(
+        //         newAttendance
+        //     );
+        //     res.send(result);
+        // });
 
         // Get Attendance on Finance management db
         app.get("/attendance", async (req, res) => {
@@ -238,12 +259,12 @@ async function run() {
         });
 
         // Get AttendanceEnd on Finance management db
-        app.get("/attendanceEnd", async (req, res) => {
-            const query = {};
-            const cursor = attendanceEndCollection.find(query);
-            const result = await cursor.toArray();
-            res.send(result);
-        });
+        // app.get("/attendanceEnd", async (req, res) => {
+        //     const query = {};
+        //     const cursor = attendanceEndCollection.find(query);
+        //     const result = await cursor.toArray();
+        //     res.send(result);
+        // });
         // Trainnig employee api start
         app.get("/Trainnig", async (req, res) => {
             const result = await TrainnigCollecton.find({}).toArray();
@@ -274,6 +295,52 @@ async function run() {
         app.get("/employeedetails", async (req, res) => {
             const result = await employeedetailstCollecton.find({}).toArray();
             res.send(result);
+        });
+
+        // SSL Commerze Intregation
+        app.get("/init", (req, res) => {
+            const data = {
+                total_amount: 1350,
+                currency: "BDT",
+                tran_id: "REF123", // use unique tran_id for each api call
+                success_url: "http://localhost:3030/success",
+                fail_url: "http://localhost:3030/fail",
+                cancel_url: "http://localhost:3030/cancel",
+                ipn_url: "http://localhost:3030/ipn",
+                shipping_method: "Courier",
+                product_name: "Computer.",
+                product_category: "Electronic",
+                product_profile: "general",
+                cus_name: "Customer Name",
+                cus_email: "customer@example.com",
+                cus_add1: "Dhaka",
+                cus_add2: "Dhaka",
+                cus_city: "Dhaka",
+                cus_state: "Dhaka",
+                cus_postcode: "1000",
+                cus_country: "Bangladesh",
+                cus_phone: "01711111111",
+                cus_fax: "01711111111",
+                ship_name: "Customer Name",
+                ship_add1: "Dhaka",
+                ship_add2: "Dhaka",
+                ship_city: "Dhaka",
+                ship_state: "Dhaka",
+                ship_postcode: 1000,
+                ship_country: "Bangladesh",
+            };
+            const sslcz = new SSLCommerzPayment(
+                process.env.STORE_ID,
+                process.env.STORE_PASS,
+                false
+            );
+            sslcz.init(data).then((apiResponse) => {
+                // Redirect the user to payment gateway
+                let GatewayPageURL = apiResponse.GatewayPageURL;
+                res.redirect(GatewayPageURL);
+                // console.log("Redirecting to: ", GatewayPageURL);
+                // console.log("api response", apiResponse);
+            });
         });
         app.post("/employeedetails", async (req, res) => {
             const details = req.body;
@@ -431,16 +498,19 @@ async function run() {
             res.send(result);
         });
 
-        app.get("/award", async (req, res) => {
-            const result = await awardCollecton.find({}).toArray();
+        app.get("/award/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const result = await awardCollecton.find({ companyName }).toArray();
             res.send(result);
         });
         app.get("/warning", async (req, res) => {
             const result = await warningCollecton.find({}).toArray();
             res.send(result);
         });
-        app.get("/payrolls", async (req, res) => {
-            const result = await payrollsCollecton.find({}).toArray();
+        app.get("/payrolls/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const filter = { companyName };
+            const result = await payrollsCollecton.find(filter).toArray();
             res.send(result);
         });
 
@@ -450,15 +520,29 @@ async function run() {
             res.send(result);
         });
 
-        app.get("/meetings", async (req, res) => {
-            const result = await meetingCollection.find({}).toArray();
+        // get all mettings filtering by user
+        app.get("/userMetings/:email", async (req, res) => {
+            const meetingWith = req.params.email;
+            const result = await meetingCollection
+                .find({ meetingWith })
+                .toArray();
+            res.send(result);
+        });
+
+        app.get("/meetings/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const filter = { companyName };
+            const result = await meetingCollection.find(filter).toArray();
             res.send(result);
         });
         //transfar
 
         //Get all Warnings
-        app.get("/warnings", async (req, res) => {
-            const result = await warningCollection.find({}).toArray();
+        app.get("/warnings/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const result = await warningCollection
+                .find({ companyName })
+                .toArray();
             res.send(result);
         });
 
@@ -538,8 +622,9 @@ async function run() {
         });
 
         // Get newsletter data
-        app.get("/newsletterMail", async (req, res) => {
-            const query = {};
+        app.get("/newsletterMail/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
             const cursor = newsletterCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
@@ -677,7 +762,20 @@ async function run() {
             const email = info?.email;
             const name = info?.name;
             const secretCode = info?.secretCode;
+
+            //get all notification by user
+            const notification = await notificationCollection
+                .find({ user: email })
+                .toArray();
+
+            // check user valid or not
             const employee = await userCollection.findOne({ email });
+
+            // get all employees by company
+            const { companyName } = employee;
+            const allEmployees = await userCollection
+                .find({ companyName })
+                .toArray();
 
             if (!employee) {
                 res.send({
@@ -695,6 +793,8 @@ async function run() {
                     role: true,
                     message: "Congratulation!",
                     loggerInfo: employee,
+                    notification: notification,
+                    allEmployees,
                 });
             }
         });
@@ -732,14 +832,14 @@ async function run() {
 
         app.post("/sentEmail", async (req, res) => {
             const newSentEmail = req.body;
-            console.log(newSentEmail);
             const result = await sentEmailCollection.insertOne(newSentEmail);
             sendMarketingEmail(newSentEmail);
             res.send(result);
         });
 
-        app.get("/sentEmail", async (req, res) => {
-            const query = {};
+        app.get("/sentEmail/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
             const cursor = sentEmailCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
@@ -747,16 +847,72 @@ async function run() {
 
         app.delete("/deleteEmail/:id", async (req, res) => {
             const id = req.params.id;
-            console.log(id);
             const query = { _id: ObjectId(id) };
             const result = await sentEmailCollection.deleteOne(query);
+            res.send(result);
+        });
+
+        // get notification filtering by user
+        app.get("/getNotification/:email", async (req, res) => {
+            const user = req.params.email;
+            const filter = { user };
+            const result = await notificationCollection.find(filter).toArray();
+            res.send(result);
+        });
+
+        // Read all notification status update
+        app.put("/readAll/:email", async (req, res) => {
+            const email = req.params.email;
+            const filter = { user: email };
+            const updateDoc = {
+                $set: {
+                    seen: true,
+                },
+            };
+            const result = await notificationCollection.updateMany(
+                filter,
+                updateDoc
+            );
+            res.send(result);
+        });
+
+        // update seen history
+        app.put("/updateNotify/:id", async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const notification = await notificationCollection.findOne(filter);
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    seen: !notification.seen,
+                },
+            };
+            const result = await notificationCollection.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
             res.send(result);
         });
 
         //post new meeting
         app.post("/createNewMeeting", async (req, res) => {
             const newMeeting = req.body;
+            const { meetingWith, meetingLink, date } = newMeeting;
             const result = await meetingCollection.insertOne(newMeeting);
+
+            // sent notification to user
+            const notifyBody = {
+                type: "meeting",
+                seen: false,
+                user: meetingWith,
+                link: meetingLink,
+                time: date,
+            };
+            const notification = await notificationCollection.insertOne(
+                notifyBody
+            );
+
             res.send(result);
         });
         //post award info to DB
@@ -765,7 +921,7 @@ async function run() {
             const { employeeEmail } = newAward;
             const filter = { email: employeeEmail };
             const user = await userCollection.findOne(filter);
-            const updatedAward = { ...newAward, name: user.name };
+            const updatedAward = { ...newAward, name: user?.name };
             const result = await awardCollecton.insertOne(updatedAward);
             res.send(result);
         });
@@ -775,14 +931,27 @@ async function run() {
             const newWarning = req.body;
             //Get Name from user
             const email = newWarning.warningFor;
+            const { warningDate, warningReason } = newWarning;
             const filter = { email };
             const userInfo = await userCollection.findOne(filter);
+
+            // create notification
+            const notification = {
+                type: "warning",
+                user: email,
+                warningDate,
+                warningReason,
+            };
+
+            const notificationSent = await notificationCollection.insertOne(
+                notification
+            );
 
             // Create new object for insert data to mongoDB
             const updatedWarning = {
                 ...newWarning,
-                name: userInfo.name,
-                photo: userInfo.userPhoto,
+                name: userInfo?.name,
+                photo: userInfo?.userPhoto,
             };
             const result = await warningCollection.insertOne(updatedWarning);
             res.send(result);
@@ -793,6 +962,10 @@ async function run() {
             const signInInfo = req.body;
             const role = signInInfo.role;
             const email = signInInfo.email;
+            // get all notification by user
+            const notification = await notificationCollection
+                .find({ user: email })
+                .toArray();
             const authInfo = { email, role };
 
             //Create an access Token
@@ -810,7 +983,13 @@ async function run() {
             if (role === "CEO") {
                 const isCEO = await companyCollection.findOne({ CEO: email });
                 if (isCEO) {
-                    res.send({ role: true, loggerInfo, allEmployees, token });
+                    res.send({
+                        role: true,
+                        loggerInfo,
+                        allEmployees,
+                        token,
+                        notification,
+                    });
                 } else {
                     res.send({ role: false });
                 }
@@ -819,7 +998,13 @@ async function run() {
                     manager: email,
                 });
                 if (isManager) {
-                    res.send({ role: true, loggerInfo, allEmployees, token });
+                    res.send({
+                        role: true,
+                        loggerInfo,
+                        allEmployees,
+                        token,
+                        notification,
+                    });
                 } else {
                     res.send({ role: false });
                 }
@@ -840,8 +1025,9 @@ async function run() {
         });
 
         // get vendor on sales management db
-        app.get("/addNewVendor", async (req, res) => {
-            const query = {};
+        app.get("/addNewVendor/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
             const cursor = vendorCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
@@ -903,8 +1089,9 @@ async function run() {
             res.send(result);
         });
         // get products info from sales management db
-        app.get("/addProduct", async (req, res) => {
-            const query = {};
+        app.get("/addProduct/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
             const cursor = productDetailsCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
@@ -916,8 +1103,9 @@ async function run() {
             res.send(result);
         });
         // get customer from sales management db
-        app.get("/addCustomer", async (req, res) => {
-            const query = {};
+        app.get("/addCustomer/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
             const cursor = customerCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
@@ -929,10 +1117,38 @@ async function run() {
             res.send(result);
         });
         // get new order from sales management db
-        app.get("/addNewOrder", async (req, res) => {
-            const query = {};
+        app.get("/addNewOrder/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
             const cursor = salesOrderCollection.find(query);
             const result = await cursor.toArray();
+            res.send(result);
+        });
+        // put new sales order from sales management db
+        app.put("/addNewOrder/:id", async (req, res) => {
+            const id = req.params.id;
+            const { isCancel } = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    isCancel,
+                },
+            };
+            const result = await salesOrderCollection.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
+            res.send(result);
+        });
+        // get cancelled(returned) order in sales order from sales management db
+        app.get("/cancelledSalesOrder/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = {
+                $and: [{ isCancel: "cancelled" }, { companyName: companyName }],
+            };
+            const result = await salesOrderCollection.find(query).toArray();
             res.send(result);
         });
         // post new purchase order on sales management db
@@ -944,17 +1160,20 @@ async function run() {
             res.send(result);
         });
         // get new purchase order from sales management db
-        app.get("/addNewPurchaseOrder", async (req, res) => {
-            const query = {};
+        app.get("/addNewPurchaseOrder/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
             const cursor = purchaseOrderCollection.find(query);
             const result = await cursor.toArray();
-            res.send(result);
+            const quantitySum = result.reduce((prev, current) => {
+                return prev + parseInt(current.orderQuantity);
+            }, 0);
+            res.send({ result, quantitySum });
         });
         // put new purchase order at sales management db
         app.put("/addNewPurchaseOrder/:id", async (req, res) => {
             const id = req.params.id;
             const amount = req.body;
-            console.log(amount);
             const { paidAmount, dueAmount } = amount;
             const filter = { _id: ObjectId(id) };
             const options = { upsert: true };
