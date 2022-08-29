@@ -575,8 +575,9 @@ async function run() {
         });
 
         // Get newsletter data
-        app.get("/newsletterMail", async (req, res) => {
-            const query = {};
+        app.get("/newsletterMail/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
             const cursor = newsletterCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
@@ -784,14 +785,14 @@ async function run() {
 
         app.post("/sentEmail", async (req, res) => {
             const newSentEmail = req.body;
-            console.log(newSentEmail);
             const result = await sentEmailCollection.insertOne(newSentEmail);
             sendMarketingEmail(newSentEmail);
             res.send(result);
         });
 
-        app.get("/sentEmail", async (req, res) => {
-            const query = {};
+        app.get("/sentEmail/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const query = { companyName };
             const cursor = sentEmailCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
@@ -799,7 +800,6 @@ async function run() {
 
         app.delete("/deleteEmail/:id", async (req, res) => {
             const id = req.params.id;
-            console.log(id);
             const query = { _id: ObjectId(id) };
             const result = await sentEmailCollection.deleteOne(query);
             res.send(result);
@@ -1118,7 +1118,6 @@ async function run() {
             const query = { companyName };
             const cursor = purchaseOrderCollection.find(query);
             const result = await cursor.toArray();
-            // console.log(result);
             const quantitySum = result.reduce((prev, current) => {
                 return prev + parseInt(current.orderQuantity);
             }, 0);
@@ -1128,7 +1127,6 @@ async function run() {
         app.put("/addNewPurchaseOrder/:id", async (req, res) => {
             const id = req.params.id;
             const amount = req.body;
-            console.log(amount);
             const { paidAmount, dueAmount } = amount;
             const filter = { _id: ObjectId(id) };
             const options = { upsert: true };
