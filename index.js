@@ -714,7 +714,20 @@ async function run() {
             const email = info?.email;
             const name = info?.name;
             const secretCode = info?.secretCode;
+
+            //get all notification by user
+            const notification = await notificationCollection
+                .find({ user: email })
+                .toArray();
+
+            // check user valid or not
             const employee = await userCollection.findOne({ email });
+
+            // get all employees by company
+            const { companyName } = employee;
+            const allEmployees = await userCollection
+                .find({ companyName })
+                .toArray();
 
             if (!employee) {
                 res.send({
@@ -732,6 +745,8 @@ async function run() {
                     role: true,
                     message: "Congratulation!",
                     loggerInfo: employee,
+                    notification: notification,
+                    allEmployees,
                 });
             }
         });
@@ -900,6 +915,10 @@ async function run() {
             const signInInfo = req.body;
             const role = signInInfo.role;
             const email = signInInfo.email;
+            // get all notification by user
+            const notification = await notificationCollection
+                .find({ user: email })
+                .toArray();
             const authInfo = { email, role };
 
             //Create an access Token
@@ -917,7 +936,13 @@ async function run() {
             if (role === "CEO") {
                 const isCEO = await companyCollection.findOne({ CEO: email });
                 if (isCEO) {
-                    res.send({ role: true, loggerInfo, allEmployees, token });
+                    res.send({
+                        role: true,
+                        loggerInfo,
+                        allEmployees,
+                        token,
+                        notification,
+                    });
                 } else {
                     res.send({ role: false });
                 }
@@ -926,7 +951,13 @@ async function run() {
                     manager: email,
                 });
                 if (isManager) {
-                    res.send({ role: true, loggerInfo, allEmployees, token });
+                    res.send({
+                        role: true,
+                        loggerInfo,
+                        allEmployees,
+                        token,
+                        notification,
+                    });
                 } else {
                     res.send({ role: false });
                 }
