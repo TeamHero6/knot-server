@@ -303,7 +303,7 @@ async function run() {
                 total_amount: 1350,
                 currency: "BDT",
                 tran_id: "REF123", // use unique tran_id for each api call
-                success_url: "http://localhost:3030/success",
+                success_url: "http://localhost:5000/",
                 fail_url: "http://localhost:3030/fail",
                 cancel_url: "http://localhost:3030/cancel",
                 ipn_url: "http://localhost:3030/ipn",
@@ -337,7 +337,8 @@ async function run() {
             sslcz.init(data).then((apiResponse) => {
                 // Redirect the user to payment gateway
                 let GatewayPageURL = apiResponse.GatewayPageURL;
-                res.redirect(GatewayPageURL);
+                // res.redirect(GatewayPageURL);
+                res.send({ GatewayPageURL });
                 // console.log("Redirecting to: ", GatewayPageURL);
                 // console.log("api response", apiResponse);
             });

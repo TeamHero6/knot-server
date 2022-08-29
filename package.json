@@ -21,6 +21,7 @@
         "nodemailer-mailgun-transport": "^2.1.4",
         "nodemon": "^2.0.19",
         "socket.io": "^4.5.1",
+        "sslcommerz": "^1.7.0",
         "sslcommerz-lts": "^1.1.0"
     }
 }
