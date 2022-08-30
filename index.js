@@ -256,13 +256,13 @@ async function run() {
         // });
 
         // Get Attendance on Finance management db
-        app.get("/attendance", async (req, res) => {
-            const query = {};
+        app.get("/attendance/:userEmail", async (req, res) => {
+            const userEmail = req.params.userEmail;
+            const query = { userEmail };
             const cursor = attendanceCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
         });
-
 
         // Trainnig employee api start
         app.get("/Trainnig/:companyName", async (req, res) => {
@@ -482,6 +482,12 @@ async function run() {
             const result = await payrollsCollecton.find(filter).toArray();
             res.send(result);
         });
+        app.get("/userPayrolls/:email", async (req, res) => {
+            const email = req.params.email;
+            const filter = { Email: email };
+            const result = await payrollsCollecton.find(filter).toArray();
+            res.send(result);
+        });
 
         app.post("/payrolls", async (req, res) => {
             const task = req.body;
@@ -518,6 +524,20 @@ async function run() {
         app.get("/award/:companyName", async (req, res) => {
             const companyName = req.params.companyName;
             const filter = { companyName };
+            const result = await awardCollecton.find(filter).toArray();
+            res.send(result);
+        });
+        // user dashboard warning by email
+        app.get("/userWarnings/:warningFor", async (req, res) => {
+            const warningFor = req.params.warningFor;
+            const filter = { warningFor };
+            const result = await warningCollection.find(filter).toArray();
+            res.send(result);
+        });
+        // user dashboard award by email
+        app.get("/userAwards/:employeeEmail", async (req, res) => {
+            const employeeEmail = req.params.employeeEmail;
+            const filter = { employeeEmail };
             const result = await awardCollecton.find(filter).toArray();
             res.send(result);
         });
@@ -583,6 +603,13 @@ async function run() {
         app.get("/performance/:companyName", async (req, res) => {
             const companyName = req.params.companyName;
             const query = { companyName };
+            const cursor = hrCollecton.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+        app.get("/userPerformance/:email", async (req, res) => {
+            const email = req.params.email;
+            const query = { Email: email };
             const cursor = hrCollecton.find(query);
             const result = await cursor.toArray();
             res.send(result);
