@@ -260,7 +260,7 @@ async function run() {
             res.send(result);
         });
 
-       
+
         // Trainnig employee api start
         app.get("/Trainnig/:companyName", async (req, res) => {
             const companyName = req.params.companyName;
@@ -269,7 +269,7 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         });
-        
+
         app.post("/Trainnig", async (req, res) => {
             const details = req.body;
             const result = await TrainnigCollecton.insertOne(details);
@@ -373,7 +373,7 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         });
-        
+
         app.delete("/vacancy/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
@@ -487,9 +487,7 @@ async function run() {
 
         app.get("/userMeetings/:email", async (req, res) => {
             const email = req.params.email;
-            // console.log(email);
             const result = await meetingCollection.find({ meetingWith: email }).toArray();
-            console.log(result);
             res.send(result)
         });
 
@@ -509,8 +507,8 @@ async function run() {
             const result = await warningCollection.find(filter).toArray();
             res.send(result);
         });
-        app.get("/warnings", async(req,res) => {
-            const result =await warningCollection.find({}).toArray();
+        app.get("/warnings", async (req, res) => {
+            const result = await warningCollection.find({}).toArray();
             res.send(result)
         })
         app.get("/award/:companyName", async (req, res) => {
@@ -519,7 +517,7 @@ async function run() {
             const result = await awardCollecton.find(filter).toArray();
             res.send(result);
         });
-        
+
         app.get("/transfer/:companyName", async (req, res) => {
             const companyName = req.params.companyName;
             const query = { companyName };
@@ -527,7 +525,7 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         });
-        
+
         // create this api for delete specific company employee by CEO || Manager
         app.delete("/removeEmployee/:id", async (req, res) => {
             const id = req.params.id;
@@ -585,7 +583,7 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         });
-        
+
         // app.get("/transfer", async (req, res) => {
         //     const result = await transferCollecton.find({}).toArray();
         //     res.send(result);
@@ -784,16 +782,15 @@ async function run() {
 
         app.get("/users/:companyName", async (req, res) => {
             const companyName = req.params.companyName;
-            const filter = { companyName };
-            const result = await userCollecton.find(filter).toArray();
+            const query = { companyName };
+            const result = await userCollecton.find(query).toArray();
             res.send(result);
         });
 
-        app.get("/users/:email", async (req, res) => {
+        app.get("/leaveUsers/:email", async (req, res) => {
             const email = req.params.email;
-            console.log(email);
-            const result = await userCollecton.find({ email: email }).toArray();
-            console.log(result);
+            const query = { email };
+            const result = await userCollecton.find(query).toArray();
             res.send(result)
         });
 
