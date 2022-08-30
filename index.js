@@ -146,6 +146,9 @@ async function run() {
         const attendanceEndCollection = client
             .db("UserDashboard")
             .collection("attendanceEmd");
+        const adminDashboardCollection = client
+            .db("AdminDashboard")
+            .collection("blog");
 
         // coded from habib
         // post Add Partner on Finance management db
@@ -209,7 +212,7 @@ async function run() {
             res.send(result);
         });
 
-        // Get CashBook on Finance management db
+        // Get BankBook on Finance management db
         app.get("/bankBook/:companyName", async (req, res) => {
             const companyName = req.params.companyName;
             const query = { companyName };
@@ -260,7 +263,7 @@ async function run() {
             res.send(result);
         });
 
-       
+
         // Trainnig employee api start
         app.get("/Trainnig/:companyName", async (req, res) => {
             const companyName = req.params.companyName;
@@ -269,7 +272,7 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         });
-        
+
         app.post("/Trainnig", async (req, res) => {
             const details = req.body;
             const result = await TrainnigCollecton.insertOne(details);
@@ -373,7 +376,7 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         });
-        
+
         app.delete("/vacancy/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
@@ -509,8 +512,8 @@ async function run() {
             const result = await warningCollection.find(filter).toArray();
             res.send(result);
         });
-        app.get("/warnings", async(req,res) => {
-            const result =await warningCollection.find({}).toArray();
+        app.get("/warnings", async (req, res) => {
+            const result = await warningCollection.find({}).toArray();
             res.send(result)
         })
         app.get("/award/:companyName", async (req, res) => {
@@ -519,7 +522,7 @@ async function run() {
             const result = await awardCollecton.find(filter).toArray();
             res.send(result);
         });
-        
+
         app.get("/transfer/:companyName", async (req, res) => {
             const companyName = req.params.companyName;
             const query = { companyName };
@@ -527,7 +530,7 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         });
-        
+
         // create this api for delete specific company employee by CEO || Manager
         app.delete("/removeEmployee/:id", async (req, res) => {
             const id = req.params.id;
@@ -585,7 +588,7 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         });
-        
+
         // app.get("/transfer", async (req, res) => {
         //     const result = await transferCollecton.find({}).toArray();
         //     res.send(result);
@@ -1078,6 +1081,21 @@ async function run() {
             );
             res.send(result);
         });
+        // Post API for Blog //for Knot App
+        app.post("/newBlog", async (req, res) => {
+            const blog = req.body;
+            const result = await adminDashboardCollection.insertOne(blog);
+            res.send(result);
+        });
+
+        app.get('/newBlog', async (req, res) => {
+            const query = {}
+            const cursor = adminDashboardCollection.find(query)
+            const review = await cursor.toArray()
+            res.send(review)
+        })
+       
+
 
         //createNewEmployee is for adding employee in userCollection and company collection in employees array
         app.put("/createNewEmployee", async (req, res) => {
