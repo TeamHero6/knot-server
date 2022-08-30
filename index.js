@@ -146,6 +146,9 @@ async function run() {
         const attendanceEndCollection = client
             .db("UserDashboard")
             .collection("attendanceEmd");
+        const notificationCollection = client
+            .db("services")
+            .collection("notification");
 
         // coded from habib
         // post Add Partner on Finance management db
@@ -464,8 +467,9 @@ async function run() {
             res.send(result);
         });
 
-        app.get("/award", async (req, res) => {
-            const result = await awardCollecton.find({}).toArray();
+        app.get("/award/:companyName", async (req, res) => {
+            const companyName = req.params.companyName;
+            const result = await awardCollecton.find({ companyName }).toArray();
             res.send(result);
         });
         app.get("/warning", async (req, res) => {
@@ -741,7 +745,20 @@ async function run() {
             const email = info?.email;
             const name = info?.name;
             const secretCode = info?.secretCode;
+
+            //get all notification by user
+            const notification = await notificationCollection
+                .find({ user: email })
+                .toArray();
+
+            // check user valid or not
             const employee = await userCollection.findOne({ email });
+
+            // get all employees by company
+            const { companyName } = employee;
+            const allEmployees = await userCollection
+                .find({ companyName })
+                .toArray();
 
             if (!employee) {
                 res.send({
@@ -759,6 +776,8 @@ async function run() {
                     role: true,
                     message: "Congratulation!",
                     loggerInfo: employee,
+                    notification: notification,
+                    allEmployees,
                 });
             }
         });
@@ -823,10 +842,67 @@ async function run() {
             res.send(result);
         });
 
+        // get notification filtering by user
+        app.get("/getNotification/:email", async (req, res) => {
+            const user = req.params.email;
+            const filter = { user };
+            const result = await notificationCollection.find(filter).toArray();
+            res.send(result);
+        });
+
+        // Read all notification status update
+        app.put("/readAll/:email", async (req, res) => {
+            const email = req.params.email;
+            const filter = { user: email };
+            const updateDoc = {
+                $set: {
+                    seen: true,
+                },
+            };
+            const result = await notificationCollection.updateMany(
+                filter,
+                updateDoc
+            );
+            res.send(result);
+        });
+
+        // update seen history
+        app.put("/updateNotify/:id", async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const notification = await notificationCollection.findOne(filter);
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    seen: !notification.seen,
+                },
+            };
+            const result = await notificationCollection.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
+            res.send(result);
+        });
+
         //post new meeting
         app.post("/createNewMeeting", async (req, res) => {
             const newMeeting = req.body;
+            const { meetingWith, meetingLink, date } = newMeeting;
             const result = await meetingCollection.insertOne(newMeeting);
+
+            // sent notification to user
+            const notifyBody = {
+                type: "meeting",
+                seen: false,
+                user: meetingWith,
+                link: meetingLink,
+                time: date,
+            };
+            const notification = await notificationCollection.insertOne(
+                notifyBody
+            );
+
             res.send(result);
         });
         //post award info to DB
@@ -835,7 +911,7 @@ async function run() {
             const { employeeEmail } = newAward;
             const filter = { email: employeeEmail };
             const user = await userCollection.findOne(filter);
-            const updatedAward = { ...newAward, name: user.name };
+            const updatedAward = { ...newAward, name: user?.name };
             const result = await awardCollecton.insertOne(updatedAward);
             res.send(result);
         });
@@ -845,14 +921,27 @@ async function run() {
             const newWarning = req.body;
             //Get Name from user
             const email = newWarning.warningFor;
+            const { warningDate, warningReason } = newWarning;
             const filter = { email };
             const userInfo = await userCollection.findOne(filter);
+
+            // create notification
+            const notification = {
+                type: "warning",
+                user: email,
+                warningDate,
+                warningReason,
+            };
+
+            const notificationSent = await notificationCollection.insertOne(
+                notification
+            );
 
             // Create new object for insert data to mongoDB
             const updatedWarning = {
                 ...newWarning,
-                name: userInfo.name,
-                photo: userInfo.userPhoto,
+                name: userInfo?.name,
+                photo: userInfo?.userPhoto,
             };
             const result = await warningCollection.insertOne(updatedWarning);
             res.send(result);
@@ -863,6 +952,10 @@ async function run() {
             const signInInfo = req.body;
             const role = signInInfo.role;
             const email = signInInfo.email;
+            // get all notification by user
+            const notification = await notificationCollection
+                .find({ user: email })
+                .toArray();
             const authInfo = { email, role };
 
             //Create an access Token
@@ -880,7 +973,13 @@ async function run() {
             if (role === "CEO") {
                 const isCEO = await companyCollection.findOne({ CEO: email });
                 if (isCEO) {
-                    res.send({ role: true, loggerInfo, allEmployees, token });
+                    res.send({
+                        role: true,
+                        loggerInfo,
+                        allEmployees,
+                        token,
+                        notification,
+                    });
                 } else {
                     res.send({ role: false });
                 }
@@ -889,7 +988,13 @@ async function run() {
                     manager: email,
                 });
                 if (isManager) {
-                    res.send({ role: true, loggerInfo, allEmployees, token });
+                    res.send({
+                        role: true,
+                        loggerInfo,
+                        allEmployees,
+                        token,
+                        notification,
+                    });
                 } else {
                     res.send({ role: false });
                 }
@@ -1030,7 +1135,9 @@ async function run() {
         // get cancelled(returned) order in sales order from sales management db
         app.get("/cancelledSalesOrder/:companyName", async (req, res) => {
             const companyName = req.params.companyName;
-            const query = { $and: [{ isCancel: "cancelled" }, { companyName: companyName }] };
+            const query = {
+                $and: [{ isCancel: "cancelled" }, { companyName: companyName }],
+            };
             const result = await salesOrderCollection.find(query).toArray();
             res.send(result);
         });
