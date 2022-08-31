@@ -147,15 +147,12 @@ async function run() {
         const attendanceEndCollection = client
             .db("UserDashboard")
             .collection("attendanceEmd");
-<<<<<<< HEAD
         const notificationCollection = client
             .db("services")
             .collection("notification");
-=======
         const adminDashboardCollection = client
             .db("AdminDashboard")
             .collection("blog");
->>>>>>> 19e00cda8d32d611f3f9872614a94f091a57ab76
 
         // coded from habib
         // post Add Partner on Finance management db
@@ -270,11 +267,6 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         });
-
-<<<<<<< HEAD
-=======
-
->>>>>>> 19e00cda8d32d611f3f9872614a94f091a57ab76
         // Trainnig employee api start
         app.get("/Trainnig/:companyName", async (req, res) => {
             const companyName = req.params.companyName;
@@ -1268,14 +1260,12 @@ async function run() {
             res.send(result);
         });
 
-        app.get('/newBlog', async (req, res) => {
-            const query = {}
-            const cursor = adminDashboardCollection.find(query)
-            const review = await cursor.toArray()
-            res.send(review)
-        })
-       
-
+        app.get("/newBlog", async (req, res) => {
+            const query = {};
+            const cursor = adminDashboardCollection.find(query);
+            const review = await cursor.toArray();
+            res.send(review);
+        });
 
         //createNewEmployee is for adding employee in userCollection and company collection in employees array
         app.put("/createNewEmployee", async (req, res) => {
