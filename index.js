@@ -1113,6 +1113,12 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         });
+        app.get("/addProduct", async (req, res) => {
+            const query = {};
+            const cursor = productDetailsCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
         // post customer on sales management db
         app.post("/addNewCustomer", async (req, res) => {
             const newCustomer = req.body;
